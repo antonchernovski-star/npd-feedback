@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Обратная связь по прототипу — Навигатор по долгам v0.2.2</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1f2933;
+    --muted: #6b7280;
+    --border: #e4e4e0;
+    --accent: #2f4858;
+    --accent-hover: #1f3340;
+    --ok-bg: #eaf3ec;
+    --ok-text: #2e5a3a;
+    --err-bg: #fbeceb;
+    --err-text: #8a2a25;
+    --focus: #b8c5cf;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+  header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  header .sub {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0 0 24px;
+  }
+  .intro {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    font-size: 15px;
+    color: #374151;
+  }
+  .intro p { margin: 0 0 8px; }
+  .intro p:last-child { margin: 0; }
+  form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 24px 24px;
+  }
+  .field {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .field:last-of-type { border-bottom: none; }
+  label.q-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #1f2933;
+    font-size: 15px;
+  }
+  .q-num {
+    color: var(--muted);
+    font-weight: 500;
+    margin-right: 6px;
+  }
+  input[type="text"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  textarea {
+    min-height: 84px;
+    resize: vertical;
+  }
+  input[type="text"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--focus);
+  }
+  .options label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #1f2933;
+    transition: background 0.12s;
+  }
+  .options label:hover { background: #f3f3f0; }
+  .options input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--accent);
+  }
+  .scale {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .scale label {
+    flex: 1 1 56px;
+    min-width: 48px;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 0;
+    cursor: pointer;
+    font-size: 15px;
+    background: #fff;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .scale label:hover { background: #f3f3f0; }
+  .scale input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .scale input[type="radio"]:checked + span {
+    display: inline-block;
+  }
+  .scale label.checked {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .scale-hint {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  .actions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-start;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled {
+    background: #9aa4ad;
+    cursor: not-allowed;
+  }
+  .status {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    display: none;
+  }
+  .status.ok {
+    display: block;
+    background: var(--ok-bg);
+    color: var(--ok-text);
+    border: 1px solid #c8dccd;
+  }
+  .status.err {
+    display: block;
+    background: var(--err-bg);
+    color: var(--err-text);
+    border: 1px solid #efc8c6;
+  }
+  .disclaimer {
+    margin-top: 28px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .done-screen {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .done-screen h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .done-screen p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  @media (max-width: 520px) {
+    .wrap { padding: 20px 14px 60px; }
+    form { padding: 4px 16px 18px; }
+    header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Обратная связь по прототипу «Навигатор по долгам»</h1>
+    <p class="sub">Версия прототипа v0.2.2. Это короткая форма для тестировщиков.</p>
+  </header>
+
+  <div class="intro">
+    <p>Спасибо, что согласились пройти прототип и поделиться впечатлениями. Эта форма помогает понять, что в нём понятно, а что — нет, и где стоит переписать вопросы или результат.</p>
+    <p>Заполнение займёт примерно 5–10 минут. Email и контакты не запрашиваются.</p>
+  </div>
+
+  <form id="feedback-form" novalidate>
+
+    <div class="field">
+      <label class="q-label" for="q1"><span class="q-num">1.</span>Имя тестировщика</label>
+      <input type="text" id="q1" name="q1_name" autocomplete="off" placeholder="Например: Анна">
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q2"><span class="q-num">2.</span>Какая роль была у тестировщика?</label>
+      <select id="q2" name="q2_role">
+        <option value="">— выберите —</option>
+        <option>Ирина, 47, медсестра</option>
+        <option>Алексей, 35, водитель</option>
+        <option>Светлана, 41, бухгалтер</option>
+        <option>Дима, 29, IT-специалист</option>
+        <option>Проходил без роли / не помню</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q3"><span class="q-num">3.</span>Какой результат выпал?</label>
+      <select id="q3" name="q3_result">
+        <option value="">— выберите —</option>
+        <option>ВБФЛ через МФЦ предварительно может подойти</option>
+        <option>Нужно уточнить документы и данные</option>
+        <option>Нужно подготовить ситуацию</option>
+        <option>Есть фактор риска — его лучше проверить</option>
+        <option>МФЦ может быть не лучшим вариантом</option>
+        <option>Сейчас банкротство может быть не нужно</option>
+        <option>Не помню / не понял</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">4.</span>Было ли понятно с первого экрана, что это за сервис?</span>
+      <div class="options">
+        <label><input type="radio" name="q4_first_screen" value="Да, понятно"> Да, понятно</label>
+        <label><input type="radio" name="q4_first_screen" value="Скорее понятно"> Скорее понятно</label>
+        <label><input type="radio" name="q4_first_screen" value="Скорее непонятно"> Скорее непонятно</label>
+        <label><input type="radio" name="q4_first_screen" value="Нет, непонятно"> Нет, непонятно</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q5"><span class="q-num">5.</span>Где впервые стало непонятно или пришлось перечитать?</label>
+      <textarea id="q5" name="q5_unclear_place" placeholder="Например: на вопросе про основания, на экране результата…"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q6"><span class="q-num">6.</span>Какой вопрос был самым сложным?</label>
+      <textarea id="q6" name="q6_hardest_question"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q7"><span class="q-num">7.</span>Какие слова показались слишком юридическими или непонятными?</label>
+      <textarea id="q7" name="q7_legal_words" placeholder="Можно перечислить через запятую"></textarea>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">8.</span>Был ли понятен итоговый результат?</span>
+      <div class="options">
+        <label><input type="radio" name="q8_result_clear" value="Да, понял"> Да, понял</label>
+        <label><input type="radio" name="q8_result_clear" value="В целом понял, но не всё"> В целом понял, но не всё</label>
+        <label><input type="radio" name="q8_result_clear" value="Скорее не понял"> Скорее не понял</label>
+        <label><input type="radio" name="q8_result_clear" value="Нет, не понял"> Нет, не понял</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q9"><span class="q-num">9.</span>Что именно вы поняли из результата?</label>
+      <textarea id="q9" name="q9_result_understanding" placeholder="Можно своими словами"></textarea>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">10.</span>Было ли понятно, какую кнопку нажимать после результата?</span>
+      <div class="options">
+        <label><input type="radio" name="q10_cta_clear" value="Да, следующий шаг был понятен"> Да, следующий шаг был понятен</label>
+        <label><input type="radio" name="q10_cta_clear" value="Были сомнения между кнопками"> Были сомнения между кнопками</label>
+        <label><input type="radio" name="q10_cta_clear" value="Нет, было непонятно, что нажимать"> Нет, было непонятно, что нажимать</label>
+        <label><input type="radio" name="q10_cta_clear" value="Я ничего не нажимал(а)"> Я ничего не нажимал(а)</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">11.</span>Было ли ощущение давления, продажи или недоверия?</span>
+      <div class="options">
+        <label><input type="radio" name="q11_pressure" value="Нет"> Нет</label>
+        <label><input type="radio" name="q11_pressure" value="Немного было"> Немного было</label>
+        <label><input type="radio" name="q11_pressure" value="Да, было заметно"> Да, было заметно</label>
+        <label><input type="radio" name="q11_pressure" value="Сложно сказать"> Сложно сказать</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q12"><span class="q-num">12.</span>Где именно возникло ощущение давления или недоверия?</label>
+      <textarea id="q12" name="q12_pressure_where"></textarea>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">13.</span>Открыли бы вы гайд по ФССП или БКИ после такой диагностики?</span>
+      <div class="options">
+        <label><input type="radio" name="q13_guide_open" value="Да"> Да</label>
+        <label><input type="radio" name="q13_guide_open" value="Возможно"> Возможно</label>
+        <label><input type="radio" name="q13_guide_open" value="Скорее нет"> Скорее нет</label>
+        <label><input type="radio" name="q13_guide_open" value="Нет"> Нет</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">14.</span>Готовы ли вы были бы загрузить документы на проверку после результата?</span>
+      <div class="options">
+        <label><input type="radio" name="q14_docs_upload" value="Да, если понятно, кто и зачем смотрит"> Да, если понятно, кто и зачем смотрит</label>
+        <label><input type="radio" name="q14_docs_upload" value="Возможно, но не сразу"> Возможно, но не сразу</label>
+        <label><input type="radio" name="q14_docs_upload" value="Нет, сначала хотел(а) бы больше информации"> Нет, сначала хотел(а) бы больше информации</label>
+        <label><input type="radio" name="q14_docs_upload" value="Нет, не готов(а) загружать документы"> Нет, не готов(а) загружать документы</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q15"><span class="q-num">15.</span>Что бы вы изменили, чтобы человеку было проще пройти анкету до конца?</label>
+      <textarea id="q15" name="q15_what_to_change"></textarea>
+    </div>
+
+    <div class="field">
+      <span class="q-label"><span class="q-num">16.</span>Общая оценка понятности прототипа</span>
+      <div class="scale" id="scale-q16">
+        <label data-val="1"><input type="radio" name="q16_score" value="1">1</label>
+        <label data-val="2"><input type="radio" name="q16_score" value="2">2</label>
+        <label data-val="3"><input type="radio" name="q16_score" value="3">3</label>
+        <label data-val="4"><input type="radio" name="q16_score" value="4">4</label>
+        <label data-val="5"><input type="radio" name="q16_score" value="5">5</label>
+        <label data-val="6"><input type="radio" name="q16_score" value="6">6</label>
+        <label data-val="7"><input type="radio" name="q16_score" value="7">7</label>
+        <label data-val="8"><input type="radio" name="q16_score" value="8">8</label>
+        <label data-val="9"><input type="radio" name="q16_score" value="9">9</label>
+        <label data-val="10"><input type="radio" name="q16_score" value="10">10</label>
+      </div>
+      <div class="scale-hint">
+        <span>1 — совсем непонятно</span>
+        <span>10 — всё понятно</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="q-label" for="q17"><span class="q-num">17.</span>Дополнительный комментарий</label>
+      <textarea id="q17" name="q17_comment"></textarea>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="submit-btn">Отправить отзыв</button>
+    </div>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <p class="disclaimer">Форма используется только для обратной связи по прототипу. Email и контактные данные не собираются. Материал носит информационный характер.</p>
+  </form>
+
+  <div class="done-screen" id="done-screen">
+    <h2>Спасибо, отзыв отправлен</h2>
+    <p>Эта обратная связь поможет сделать прототип понятнее. Окно можно закрыть.</p>
+  </div>
+</div>
+
+<script>
+  // ВСТАВЬТЕ СЮДА URL развернутого Google Apps Script Web App
+  // Подробная инструкция — в файле 31_Инструкция_как_подключить_форму_к_Google_Sheets.md
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4wmhG1mtBrzdJfCZRSUhf7O1SxViouYhA_pTNFRGbok7l1hkJWjaryQve4tQ6ydJWJA/exec";
+
+  // Подсветка выбранного значения шкалы 1–10
+  (function initScale() {
+    const scale = document.getElementById("scale-q16");
+    if (!scale) return;
+    scale.addEventListener("change", function (e) {
+      if (e.target && e.target.name === "q16_score") {
+        scale.querySelectorAll("label").forEach(function (l) {
+          l.classList.remove("checked");
+        });
+        const lbl = e.target.closest("label");
+        if (lbl) lbl.classList.add("checked");
+      }
+    });
+  })();
+
+  const form = document.getElementById("feedback-form");
+  const statusEl = document.getElementById("status");
+  const submitBtn = document.getElementById("submit-btn");
+  const doneScreen = document.getElementById("done-screen");
+
+  function setStatus(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = "status " + (kind || "");
+  }
+
+  function collectData() {
+    const fd = new FormData(form);
+    const data = {};
+    fd.forEach(function (value, key) {
+      data[key] = (typeof value === "string") ? value.trim() : value;
+    });
+    data._prototype_version = "v0.2.2";
+    data._form_version = "31_UX_feedback_form_v0.1";
+    data._client_timestamp = new Date().toISOString();
+    return data;
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.indexOf("ВСТАВЬТЕ") === 0) {
+      setStatus(
+        "Форма ещё не подключена к Google Sheets. Откройте файл инструкции и вставьте URL в переменную GOOGLE_SCRIPT_URL.",
+        "err"
+      );
+      return;
+    }
+
+    submitBtn.disabled = true;
+    setStatus("Отправляем отзыв…", "");
+
+    const data = collectData();
+
+    try {
+      // text/plain как Content-Type — это "simple request" для CORS,
+      // поэтому браузер не делает preflight OPTIONS, а Apps Script спокойно принимает body как JSON.
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "cors",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error("Сервер вернул статус " + response.status);
+      }
+
+      let parsed = null;
+      try { parsed = await response.json(); } catch (_) { /* допускаем пустой ответ */ }
+
+      if (parsed && parsed.status && parsed.status !== "ok") {
+        throw new Error(parsed.error || "Неизвестная ошибка на стороне Google Apps Script");
+      }
+
+      form.style.display = "none";
+      doneScreen.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      submitBtn.disabled = false;
+      setStatus(
+        "Не удалось отправить отзыв. " +
+        "Проверьте подключение к интернету и URL в переменной GOOGLE_SCRIPT_URL. " +
+        "Техническая информация: " + (err && err.message ? err.message : err),
+        "err"
+      );
+    }
+  });
+</script>
+</body>
+</html>
