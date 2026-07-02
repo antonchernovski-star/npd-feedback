@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.3</title>
+<title>НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.4</title>
 <style>
   :root{
     --bg:#f6f7f9;
@@ -97,8 +97,8 @@
   .help-details summary{cursor:pointer; padding:10px 14px; font-size:14px;
     color:var(--accent); list-style:none; user-select:none; font-weight:500}
   .help-details summary::-webkit-details-marker{display:none}
-  .help-details summary::before{content:'❓ '; margin-right:4px}
-  .help-details[open] summary::before{content:'❔ '}
+  .help-details summary::before{content:'ℹ️ '; margin-right:4px}
+  .help-details[open] summary::before{content:'ℹ️ '}
   .help-details .help-body{padding:0 14px 12px; font-size:14px; color:var(--text); line-height:1.55}
   .help-details .help-body p{margin:6px 0}
 
@@ -194,7 +194,7 @@
 
 <div class="topbar">
   <div class="brand">НАВИГАТОР ПО ДОЛГАМ
-    <small>Кликабельный прототип v0.3 · не production-версия</small>
+    <small>Кликабельный прототип v0.4 · не production-версия</small>
   </div>
   <div class="topbar-right">
     <button class="ghost" id="restart-btn" type="button">Начать заново</button>
@@ -281,10 +281,7 @@
       <button class="btn btn-outline" type="button" data-go="start">Пройти диагностику заново</button>
     </div>
 
-    <details class="debug">
-      <summary>Для владельца проекта (debug-блок, в production не показывается)</summary>
-      <div class="debug-body" id="debug-body"></div>
-    </details>
+    <!-- debug-блок удалён в пользовательской сборке (v0.4) -->
   </section>
 
   <!-- ========== ЭКРАН GREEN SELF-SERVICE ========== -->
@@ -303,6 +300,7 @@
            окончены, нет ли активных или новых дел. Это первый и самый важный шаг.</p>
         <div class="btn-row">
           <button class="btn btn-secondary" type="button" data-guide="fssp">Открыть гайд</button>
+          <button class="btn btn-outline hidden" type="button" data-video="fssp">▶ Видео: как проверить с телефона</button>
           <button class="btn btn-outline" type="button" data-go="upload">Загрузить результат на проверку</button>
         </div>
         <div class="step-warn">
@@ -318,6 +316,7 @@
            и помогает заметить уступки коллекторам, ипотеку и поручительства.</p>
         <div class="btn-row">
           <button class="btn btn-outline" type="button" data-guide="bki">Посмотреть в прототипе</button>
+          <button class="btn btn-outline hidden" type="button" data-video="bki">▶ Видео: как получить с телефона</button>
         </div>
         <div class="step-locked-note">В реальной версии этот шаг лучше проходить после шага 1.</div>
       </div>
@@ -366,7 +365,7 @@
       Специалист посмотрит документы, подтвердит маршрут или подскажет,
       что нужно поправить до подачи.</p>
 
-    <div class="info-box">
+    <div class="info-box" id="upload-mode-note">
       <strong>Это прототип.</strong> Файлы в этой версии не загружаются и никуда
       не отправляются. Персональные данные не сохраняются.
     </div>
@@ -450,7 +449,7 @@
 
     <div class="btn-row" style="margin-top:14px">
       <button class="btn btn-primary" type="button" data-go="upload">Передать документы на расширенную диагностику</button>
-      <button class="btn btn-outline" type="button" data-go="start">Сохранить результат и вернуться позже</button>
+      <button class="btn btn-outline" type="button" data-go="save-modal">Сохранить результат и вернуться позже</button>
     </div>
 
     <div class="disclaimer">
@@ -574,6 +573,49 @@
 </div>
 
 <!-- ========== МОДАЛКА ГАЙДОВ ========== -->
+<!-- ========== МОДАЛКА ВИДЕО-ГАЙДА (v0.4, правка 6) ========== -->
+<div class="modal-overlay" id="video-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head">
+      <h3 id="video-modal-title">Видео-инструкция</h3>
+      <button class="modal-close" type="button" data-close="video-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="position:relative; padding-top:56.25%">
+        <iframe id="video-frame" src="" title="Видео-инструкция" frameborder="0"
+          allow="clipboard-write; autoplay" allowfullscreen
+          style="position:absolute; inset:0; width:100%; height:100%; border-radius:10px"></iframe>
+      </div>
+      <p class="hint" style="margin-top:8px">Видео носит информационный характер
+        и не является юридической консультацией.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== МОДАЛКА «СОХРАНИТЬ И ВЕРНУТЬСЯ» (v0.4, правка 7) ========== -->
+<div class="modal-overlay" id="save-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h3>Результат сохранён</h3>
+      <button class="modal-close" type="button" data-close="save-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Прогресс уже сохранён <strong>в этом браузере</strong> — когда откроете
+      страницу снова, мы предложим продолжить с того же места.</p>
+      <p>Чтобы вернуться <strong>с другого устройства</strong>, скопируйте ссылку —
+      в ней зашифрованы ваши ответы (без имени и контактов):</p>
+      <div class="form-row">
+        <input id="save-link" type="text" readonly style="font-size:12px">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" type="button" id="copy-save-link">Скопировать ссылку</button>
+        <button class="btn btn-outline" type="button" data-close="save-modal">Закрыть</button>
+      </div>
+      <div class="hint" id="save-copy-status" style="margin-top:6px"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="guide-modal" role="dialog" aria-modal="true">
   <div class="modal">
     <button class="close" type="button" id="guide-close" aria-label="Закрыть">×</button>
@@ -594,7 +636,13 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.3
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.4
+   (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
+    Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
+    Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
+    с отправкой заявки в Google Sheets + реальная загрузка файлов в Drive;
+    видео-гайды RuTube по кнопке; настоящее «сохранить и вернуться»
+    через localStorage и ссылку-код)
    (логический патч под анкету 09 v1.9.1 и матрицу 06 v2.2 от 2026-07-02:
     новый вопрос Q6a о повторном банкротстве; микродолг раньше риска;
     Q2=B без просрочек → Not Now; СВО+зарплата → Risk Check;
@@ -650,6 +698,16 @@
    ============================================================ */
 
 /* ============== СПИСОК ВОПРОСОВ (15 шт.) ============== */
+/* ============== КОНФИГУРАЦИЯ v0.4 ============== */
+/* URL Google Apps Script Web App (файл 35). Пусто — режим имитации без отправки. */
+const SUBMIT_URL = '';
+/* Ссылки на встраиваемые видео RuTube (формат https://rutube.ru/play/embed/ID/).
+   Пусто — кнопка видео не показывается. */
+const VIDEO_GUIDES = { fssp:'', bki:'' };
+const MAX_FILE_MB = 10;
+const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
+const LS_KEY = 'npd_quiz_state_v04';
+
 const QUESTIONS = [
   {
     id:'Q1', type:'single',
@@ -714,7 +772,7 @@ const QUESTIONS = [
       {v:'B', label:'Раньше приставы взыскивали, потом дело закрыли, потому что не нашли денег или имущества для взыскания'},
       {v:'C', label:'Раньше приставы взыскивали, потом дело закрыли по другой причине'},
       {v:'D', label:'Насколько я знаю, приставы ничего не взыскивали'},
-      {v:'E', label:'Не знаю / не проверял(а)', okHint:'Это нормальный ответ'}
+      {v:'E', label:'Не знаю / не проверял(а) / дело закрыли, но причину не знаю', okHint:'Это нормальный ответ'}
     ]
   },
   {
@@ -766,6 +824,7 @@ const QUESTIONS = [
   },
   {
     id:'Q10', type:'single',
+    helpText:'<p><strong>Официальный доход</strong> — то, что можно подтвердить документами: зарплата по трудовому договору, пенсия, пособия, доход самозанятого или ИП, аренда по договору.</p><p>Если доходов несколько — выбирайте основной. Если работаете неофициально или доход нерегулярный — подойдёт последний вариант.</p><p>Прожиточный минимум (ПМ) в каждом регионе свой — точную сумму на этом шаге знать не нужно, выбирайте примерно.</p>',
     title:'Какой у вас сейчас официальный доход?',
     hint:'Доход — это всё, что приходит официально: зарплата, пенсия, пособия, самозанятость, аренда.',
     options:[
@@ -782,11 +841,11 @@ const QUESTIONS = [
     id:'Q12', type:'multi',
     title:'Какое у вас имущество в собственности?',
     hint:'Отметьте всё, что зарегистрировано на вас. Если в долевой собственности — тоже отмечайте.',
-    helpText:'<p>«Только единственное жильё» и «ничего нет» — это одиночные варианты. Если выбираете один из них, остальные пункты выключатся. Это нормально.</p><p>Если у вас несколько объектов имущества — отметьте все подходящие варианты из списка B–F.</p>',
+    helpText:'<p>«Только единственное жильё» и «ничего нет» — это одиночные варианты. Если выбираете один из них, остальные пункты выключатся. Это нормально.</p><p>Если у вас несколько объектов имущества — отметьте все подходящие варианты.</p>',
     options:[
       {v:'A', label:'Только единственное жильё, другого имущества нет'},
       {v:'B', label:'Доля в жилье'},
-      {v:'C', label:'Вторая (и более) квартира или дом'},
+      {v:'C', label:'Ещё одна квартира или дом (кроме единственного жилья)'},
       {v:'D', label:'Земельный участок, дача, гараж'},
       {v:'E', label:'Автомобиль или другой транспорт'},
       {v:'F', label:'Вклады, ценные бумаги, доли в бизнесе'},
@@ -843,11 +902,6 @@ const QUESTIONS = [
       {v:'D', label:'Сейчас просто изучаю тему, оплату не рассматриваю'},
       {v:'E', label:'Не готов(а) обсуждать сейчас'}
     ]
-  },
-  {
-    id:'Q20', type:'contact',
-    title:'Контактный блок',
-    hint:'Это последний шаг перед результатом.'
   }
 ];
 
@@ -858,8 +912,39 @@ const STATE = {
   lastResultRoute:null,
   lastResultMeta:null,
   uploadOrigin:null,
-  uploadSelectedTypes:[]
+  uploadSelectedTypes:[],
+  uploadFiles:{}
 };
+
+/* v0.4 (правка 5): номер заявки и отправка в Google Sheets */
+function genAppId(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return 'NPD-' + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + '-' +
+         Math.random().toString(36).slice(2,6).toUpperCase();
+}
+async function submitToSheet(payload){
+  if(!SUBMIT_URL){
+    return { status:'simulated' };
+  }
+  const resp = await fetch(SUBMIT_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
+}
+function collectMeta(){
+  const r = STATE.lastResultMeta || {};
+  return {
+    route: STATE.lastResultRoute || null,
+    tags: r.tags || [],
+    reasons: r.reasons || [],
+    answers: STATE.answers,
+    url: location.href,
+    ua: navigator.userAgent
+  };
+}
 
 const DOC_TYPE_LABELS = {
   fssp:'Скриншоты или PDF из ФССП',
@@ -930,6 +1015,16 @@ function renderQuestion(){
     container.appendChild(p);
   }
 
+  /* v0.4 (правка 1): «Что это значит?» — сразу под текстом вопроса */
+  if(q.helpText){
+    const help = document.createElement('details');
+    help.className = 'help-details';
+    help.style.marginTop = '4px';
+    help.style.marginBottom = '10px';
+    help.innerHTML = `<summary>Что это значит?</summary><div class="help-body">${q.helpText}</div>`;
+    container.appendChild(help);
+  }
+
   if(q.type === 'contact'){
     // Честная заглушка вместо декоративных полей
     const wrap = document.createElement('div');
@@ -974,16 +1069,7 @@ function renderQuestion(){
     container.appendChild(counter);
   }
 
-  // Help-блок «Что это значит?»
-  if(q.helpText){
-    const help = document.createElement('details');
-    help.className = 'help-details';
-    help.innerHTML = `
-      <summary>Что это значит?</summary>
-      <div class="help-body">${q.helpText}</div>
-    `;
-    container.appendChild(help);
-  }
+  // v0.4: help-блок перенесён наверх (правка 1)
 
   // Состояние кнопки «Дальше»
   updateNextBtnState();
@@ -1115,7 +1201,32 @@ function renderCounterHtml(q){
   return `Выбрано: <b>${cur.length}</b> из ${q.options.length}`;
 }
 
+/* v0.4 (правка 7): автосохранение прогресса */
+function saveLocal(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      a: STATE.answers, i: STATE.currentIndex, ts: Date.now()
+    }));
+  }catch(e){}
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return null;
+    const st = JSON.parse(raw);
+    if(!st || !st.a || Object.keys(st.a).length === 0) return null;
+    return st;
+  }catch(e){ return null; }
+}
+function encodeState(){
+  return btoa(unescape(encodeURIComponent(JSON.stringify({a: STATE.answers}))));
+}
+function decodeState(code){
+  try{ return JSON.parse(decodeURIComponent(escape(atob(code)))); }catch(e){ return null; }
+}
+
 function updateNextBtnState(){
+  saveLocal();
   const list = visibleQuestions();
   const q = list[STATE.currentIndex];
   if(!q){ $('next-btn').disabled = true; return; }
@@ -1433,7 +1544,7 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Загрузить документы на проверку', go:'upload' },
     altCta: { label:'Посмотреть, какие документы понадобятся', go:'upload' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'start' }
+    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   bfl_better: {
     badge: 'Маршрут диагностики',
@@ -1449,7 +1560,7 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Сравнить варианты', go:'compare-modal' },
     altCta: { label:'Передать документы на проверку', go:'upload' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'start' }
+    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   not_now: {
     badge: 'Маршрут диагностики',
@@ -1465,7 +1576,7 @@ const RESULT_CONTENT = {
       изменится.</p>
     `,
     primaryCta: { label:'Получить план контроля ситуации', go:'not-now-plan' },
-    altCta: { label:'Сохранить результат и вернуться позже', go:'start' },
+    altCta: { label:'Сохранить результат и вернуться позже', go:'save-modal' },
     nextStep: { label:'Посмотреть, как выглядит загрузка документов', go:'upload' }
   }
 };
@@ -1511,7 +1622,84 @@ function finishQuiz(){
   STATE.lastResultRoute = result.route;
   STATE.lastResultMeta = result;
   renderResult(result);
+  renderResultContact(result);
   showScreen('screen-result');
+}
+
+/* v0.4 (правка 5): контакт после результата — ценность вперёд, контакт потом */
+function renderResultContact(result){
+  let rc = document.getElementById('result-contact');
+  if(!rc){
+    rc = document.createElement('div');
+    rc.id = 'result-contact';
+    const cta = $('result-cta');
+    cta.parentNode.insertBefore(rc, cta.nextSibling);
+  }
+  rc.innerHTML = `
+    <div class="info-box" style="margin-top:18px">
+      <strong>Сохранить этот результат?</strong><br>
+      Можем отправить его вам на почту или в мессенджер — вместе с подходящими
+      гайдами. Это необязательно: результат уже сохранён в этом браузере.
+    </div>
+    <div class="form-row">
+      <label for="lead-name">Как к вам обращаться</label>
+      <input id="lead-name" type="text" placeholder="Имя">
+    </div>
+    <div class="form-row">
+      <label for="lead-channel">Куда отправить</label>
+      <select id="lead-channel">
+        <option value="">— выберите канал —</option>
+        <option value="phone">Телефон (позвоните мне)</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="telegram">Telegram</option>
+        <option value="email">Электронная почта</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="lead-contact">Номер или адрес</label>
+      <input id="lead-contact" type="text" placeholder="+7 ___ ___-__-__ / @ник / почта">
+    </div>
+    <label class="consent-row" style="display:flex; gap:8px; align-items:flex-start; font-size:13px; margin:8px 0">
+      <input type="checkbox" id="lead-consent" style="margin-top:3px">
+      <span>Согласен(на) на обработку указанных данных, чтобы получить результат
+      диагностики. <em>(Текст согласия — заглушка прототипа, финальную редакцию
+      даёт юрист.)</em></span>
+    </label>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" id="lead-submit">Отправить мне результат</button>
+    </div>
+    <div class="hint" id="lead-status" style="margin-top:8px"></div>
+  `;
+  document.getElementById('lead-submit').addEventListener('click', async () => {
+    const name = document.getElementById('lead-name').value.trim();
+    const channel = document.getElementById('lead-channel').value;
+    const contact = document.getElementById('lead-contact').value.trim();
+    const consent = document.getElementById('lead-consent').checked;
+    const st = document.getElementById('lead-status');
+    if(!channel || !contact){ st.textContent = 'Выберите канал и укажите контакт.'; return; }
+    if(!consent){ st.textContent = 'Нужна отметка согласия — без неё мы не можем сохранить контакт.'; return; }
+    st.textContent = 'Отправляем…';
+    const appId = genAppId();
+    try{
+      const r = await submitToSheet(Object.assign({
+        kind:'lead', app_id: appId, client_ts: new Date().toISOString(),
+        name, channel, contact, consent: true
+      }, collectMeta()));
+      if(r.status === 'ok' || r.status === 'simulated'){
+        rc.innerHTML = `
+          <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
+            <strong>Заявка ${appId} принята.</strong><br>
+            ${r.status === 'simulated'
+              ? 'Это прототип: форма ещё не подключена к таблице, данные никуда не отправлены.'
+              : 'Мы отправим результат на указанный канал. Звонить без запроса не будем.'}
+          </div>`;
+      } else {
+        st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.';
+      }
+    }catch(e){
+      st.textContent = 'Не получилось отправить (нет связи). Результат сохранён в браузере.';
+    }
+  });
 }
 
 function renderResult(result){
@@ -1609,7 +1797,8 @@ function renderDebug(result, c){
   html += '<h4>Ответы пользователя</h4>';
   html += '<pre>' + escapeHtml(JSON.stringify(STATE.answers, null, 2)) + '</pre>';
 
-  $('debug-body').innerHTML = html;
+  const dbgEl = $('debug-body');
+  if(dbgEl) dbgEl.innerHTML = html;  /* v0.4: в пользовательской сборке debug-блока нет */
 }
 
 function guidesForRoute(route){
@@ -1657,8 +1846,97 @@ function goTo(target){
     case 'compare-modal':
       openCompareModal();
       break;
+    /* v0.4 (правка 7): модалка сохранения с ссылкой-кодом */
+    case 'save-modal':
+      openSaveModal();
+      break;
   }
 }
+
+function openSaveModal(){
+  const link = location.origin + location.pathname + '#s=' + encodeState();
+  $('save-link').value = link;
+  $('save-copy-status').textContent = '';
+  $('save-modal').classList.add('is-open');
+}
+$('copy-save-link').addEventListener('click', async () => {
+  const inp = $('save-link');
+  try{
+    await navigator.clipboard.writeText(inp.value);
+    $('save-copy-status').textContent = 'Скопировано. Перешлите ссылку себе в мессенджер или почту.';
+  }catch(e){
+    inp.select();
+    $('save-copy-status').textContent = 'Выделите ссылку и скопируйте вручную (Ctrl+C).';
+  }
+});
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const m = $(btn.dataset.close);
+    m.classList.remove('is-open');
+    if(btn.dataset.close === 'video-modal') $('video-frame').src = '';
+  });
+});
+
+/* v0.4 (правка 6): показать кнопки видео, если ссылки заданы */
+document.querySelectorAll('[data-video]').forEach(btn => {
+  const key = btn.dataset.video;
+  if(VIDEO_GUIDES[key]){
+    btn.classList.remove('hidden');
+    btn.addEventListener('click', () => {
+      $('video-modal-title').textContent = key === 'fssp'
+        ? 'Видео: проверка ФССП с телефона' : 'Видео: как получить БКИ с телефона';
+      $('video-frame').src = VIDEO_GUIDES[key];
+      $('video-modal').classList.add('is-open');
+    });
+  }
+});
+
+/* v0.4 (правка 7): восстановление прогресса при открытии */
+(function restoreProgress(){
+  const m = location.hash.match(/#s=([A-Za-z0-9+/=]+)/);
+  if(m){
+    const st = decodeState(m[1]);
+    if(st && st.a && Object.keys(st.a).length){
+      STATE.answers = st.a;
+      history.replaceState(null, '', location.pathname);
+      const list = visibleQuestions();
+      let idx = list.findIndex(q => q.type !== 'contact' && STATE.answers[q.id] === undefined);
+      if(idx === -1){ finishQuiz(); return; }
+      STATE.currentIndex = idx;
+      renderQuestion();
+      showScreen('screen-quiz');
+      return;
+    }
+  }
+  const saved = loadLocal();
+  if(saved){
+    const startCard = document.querySelector('#screen-start .card') || $('screen-start');
+    const banner = document.createElement('div');
+    banner.className = 'info-box';
+    banner.style.marginTop = '12px';
+    const n = Object.keys(saved.a).length;
+    banner.innerHTML = `
+      <strong>У вас есть незавершённая диагностика</strong> (ответов: ${n}).<br>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-primary" type="button" id="resume-btn">Продолжить с места остановки</button>
+        <button class="btn btn-outline" type="button" id="resume-reset">Начать заново</button>
+      </div>`;
+    startCard.appendChild(banner);
+    document.getElementById('resume-btn').addEventListener('click', () => {
+      STATE.answers = saved.a;
+      const list = visibleQuestions();
+      let idx = list.findIndex(q => q.type !== 'contact' && STATE.answers[q.id] === undefined);
+      if(idx === -1){ finishQuiz(); return; }
+      STATE.currentIndex = idx;
+      renderQuestion();
+      showScreen('screen-quiz');
+    });
+    document.getElementById('resume-reset').addEventListener('click', () => {
+      try{ localStorage.removeItem(LS_KEY); }catch(e){}
+      banner.remove();
+    });
+  }
+})();
 
 document.querySelectorAll('[data-go]').forEach(btn => {
   btn.addEventListener('click', () => goTo(btn.dataset.go));
@@ -1667,6 +1945,7 @@ document.querySelectorAll('[data-go]').forEach(btn => {
 /* ============== ФОРМА ЗАГРУЗКИ — МУЛЬТИДОКУМЕНТ ============== */
 function resetUploadForm(){
   STATE.uploadSelectedTypes = [];
+  STATE.uploadFiles = {};
   document.querySelectorAll('#doc-types input[type=checkbox]').forEach(c => c.checked = false);
   document.querySelectorAll('#doc-types .doc-type').forEach(d => d.classList.remove('is-selected'));
   $('doc-zones').innerHTML = '';
@@ -1696,11 +1975,43 @@ function updateDocZones(){
   STATE.uploadSelectedTypes.forEach(t => {
     const zone = document.createElement('div');
     zone.className = 'doc-zone';
+    const files = STATE.uploadFiles[t] || [];
+    const listHtml = files.length
+      ? '<ul style="margin:6px 0 0 18px; font-size:13px">' +
+        files.map(f => `<li>${escapeHtml(f.name)} (${(f.size/1024/1024).toFixed(1)} МБ)</li>`).join('') + '</ul>'
+      : '';
     zone.innerHTML = `
-      <strong>${escapeHtml(DOC_TYPE_LABELS[t])}</strong>
-      📎 Сюда вы сможете перетащить файл (в прототипе зона декоративная).
+      <strong>${escapeHtml(DOC_TYPE_LABELS[t])}</strong><br>
+      <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf" data-filetype="${t}"
+        style="margin-top:6px; font-size:13px">
+      <div class="hint" style="margin-top:4px">JPG, PNG или PDF, до ${MAX_FILE_MB} МБ на файл.</div>
+      ${listHtml}
     `;
     wrap.appendChild(zone);
+  });
+  wrap.querySelectorAll('input[type=file]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const t = inp.dataset.filetype;
+      const ok = [];
+      for(const f of inp.files){
+        const ext = f.name.split('.').pop().toLowerCase();
+        if(!ALLOWED_EXT.includes(ext)){ alert(`Файл «${f.name}»: формат не поддерживается (нужен JPG, PNG или PDF).`); continue; }
+        if(f.size > MAX_FILE_MB*1024*1024){ alert(`Файл «${f.name}» больше ${MAX_FILE_MB} МБ — сожмите или разбейте на части.`); continue; }
+        ok.push(f);
+      }
+      STATE.uploadFiles[t] = ok;
+      updateDocZones();
+      updateUploadBtn();
+    });
+  });
+}
+
+function readFileB64(f){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(f);
   });
 }
 
@@ -1732,17 +2043,53 @@ document.querySelectorAll('#doc-types .doc-type').forEach(label => {
 
 $('up-consent').addEventListener('change', updateUploadBtn);
 
-$('upload-submit').addEventListener('click', () => {
+$('upload-submit').addEventListener('click', async () => {
   if(STATE.uploadSelectedTypes.length === 0){
-    alert('Выберите хотя бы один тип документа. В прототипе данные никуда не отправляются.');
+    alert('Выберите хотя бы один тип документа.');
     return;
   }
   if(!$('up-consent').checked){
-    alert('Поставьте отметку согласия. В прототипе данные никуда не отправляются.');
+    alert('Поставьте отметку согласия — без неё мы не можем принять документы.');
     return;
   }
-  // Сводка для done-экрана
   const labels = STATE.uploadSelectedTypes.map(t => DOC_TYPE_LABELS[t]);
+  const btn = $('upload-submit');
+
+  /* v0.4 (правка 5): реальная отправка файлов, если форма подключена */
+  if(SUBMIT_URL){
+    btn.disabled = true; btn.textContent = 'Отправляем…';
+    try{
+      const files = [];
+      for(const t of STATE.uploadSelectedTypes){
+        for(const f of (STATE.uploadFiles[t] || [])){
+          files.push({ doctype: t, name: f.name, mime: f.type || 'application/octet-stream',
+                       data: await readFileB64(f) });
+        }
+      }
+      const appId = genAppId();
+      const r = await submitToSheet(Object.assign({
+        kind:'upload', app_id: appId, client_ts: new Date().toISOString(),
+        name: $('up-name').value.trim(), contact: $('up-contact').value.trim(),
+        comment: $('up-comment').value.trim(), consent: true,
+        doc_types: STATE.uploadSelectedTypes, files
+      }, collectMeta()));
+      if(r.status === 'ok'){
+        $('upload-done-summary').innerHTML =
+          '<strong>Заявка ' + escapeHtml(r.app_id || appId) + ' принята.</strong><br>Вы передали: ' +
+          escapeHtml(labels.join(' · ')) + (files.length ? ' — файлов: ' + files.length : ' (без файлов)');
+        showScreen('screen-upload-done');
+      } else {
+        alert('Не получилось отправить: ' + (r.error || 'попробуйте позже.'));
+      }
+    }catch(e){
+      alert('Не получилось отправить (нет связи). Попробуйте позже.');
+    }finally{
+      btn.disabled = false; btn.textContent = 'Отправить на проверку';
+    }
+    return;
+  }
+
+  // Режим имитации (SUBMIT_URL не задан)
   $('upload-done-summary').innerHTML =
     '<strong>Вы передали:</strong> ' + escapeHtml(labels.join(' · '));
   showScreen('screen-upload-done');
