@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.2.3</title>
+<title>НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.3</title>
 <style>
   :root{
     --bg:#f6f7f9;
@@ -194,7 +194,7 @@
 
 <div class="topbar">
   <div class="brand">НАВИГАТОР ПО ДОЛГАМ
-    <small>Кликабельный прототип v0.2.3 · не production-версия</small>
+    <small>Кликабельный прототип v0.3 · не production-версия</small>
   </div>
   <div class="topbar-right">
     <button class="ghost" id="restart-btn" type="button">Начать заново</button>
@@ -594,7 +594,12 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.2.3
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.3
+   (логический патч под анкету 09 v1.9.1 и матрицу 06 v2.2 от 2026-07-02:
+    новый вопрос Q6a о повторном банкротстве; микродолг раньше риска;
+    Q2=B без просрочек → Not Now; СВО+зарплата → Risk Check;
+    алименты → Yellow B по решению К-4 (канон 09/07, а не Risk Check);
+    Green только при Q2 C/D и Q6a A/B)
    Патч поверх v0.2.2 (точечный текстовый UX-патч по результатам первых тестов):
    • Стартовый экран — добавлен честный info-box про бесплатную диагностику,
      самостоятельные действия после результата, опциональную платную проверку
@@ -710,6 +715,19 @@ const QUESTIONS = [
       {v:'C', label:'Раньше приставы взыскивали, потом дело закрыли по другой причине'},
       {v:'D', label:'Насколько я знаю, приставы ничего не взыскивали'},
       {v:'E', label:'Не знаю / не проверял(а)', okHint:'Это нормальный ответ'}
+    ]
+  },
+  {
+    id:'Q6a', type:'single',
+    title:'Проходили ли вы раньше процедуру банкротства?',
+    hint:'Судебную или через МФЦ. Если не уверены — выберите последний вариант.',
+    helpText:'<p>Повторное банкротство через МФЦ возможно не раньше, чем через <strong>5 лет</strong> после предыдущей процедуры. Если процедура была начата и прекращена, сроки нужно проверять отдельно — это не отказ, а проверка.</p>',
+    options:[
+      {v:'A', label:'Нет, никогда'},
+      {v:'B', label:'Да, завершилась более 5 лет назад'},
+      {v:'C', label:'Да, завершилась менее 5 лет назад'},
+      {v:'D', label:'Да, была начата, но прекращена или заявление вернули'},
+      {v:'E', label:'Не уверен(а) / не помню', okHint:'Это нормальный ответ'}
     ]
   },
   {
@@ -1170,10 +1188,28 @@ function calcRoute(){
   const basisSpecial = multiAny('Q7', ['A','B','C','D']) && !multiHas('Q7','E');
   const hasBasis = basisFssp || basisSpecial;
 
+  /* v0.3: pre-routing check-теги (как в анкете 09 v1.8+) — причина риска по
+     основанию видна, даже если маршрут срабатывает по более раннему правилу */
+  if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
+  if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
+  if(multiHas('Q7','C') && ['D','E','F','G'].includes(A['Q10'])) tags.push('svo_basis_check');
+
   /* ===== Мгновенный Not Now ===== */
   if(has('Q1','D')){
     tags.push('not_ready_to_disclose');
     reasons.push('Клиент не готов сейчас раскрывать данные.');
+    return finalize('not_now', tags, reasons, ctaShow, guidesShow);
+  }
+
+  /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
+  if(has('Q2','A')){
+    tags.push('small_debt'); tags.push('low_economic_value');
+    reasons.push('Сумма долга очень небольшая — банкротство, скорее всего, не самый подходящий шаг.');
+    return finalize('not_now', tags, reasons, ctaShow, guidesShow);
+  }
+  if(has('Q2','B') && has('Q9','A')){
+    tags.push('low_economic_value'); tags.push('no_overdue'); tags.push('monitoring_needed');
+    reasons.push('Долг небольшой и просрочек нет — банкротство сейчас преждевременно и, скорее всего, экономически нецелесообразно.');
     return finalize('not_now', tags, reasons, ctaShow, guidesShow);
   }
 
@@ -1236,13 +1272,15 @@ function calcRoute(){
     reasons.push('Есть обязательства как поручитель или созаёмщик — это отдельный риск, его нужно проверить.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.2.2: алименты всегда уводят в Risk Check, даже при наличии основания —
-     они не списываются и требуют отдельной проверки. */
+  /* v0.3: алименты, заявленные в анкете, → Yellow B (подготовка), а не Risk Check —
+     синхронизировано с анкетой 09 v1.4+ и утверждённым решением К-4 (файл 07, раздел 0).
+     Risk Check по алиментам остаётся только для self-service стоп-сигнала
+     (алиментный долг, НЕ заявленный в диагностике). */
   if(multiHas('Q3','D')){
     tags.push('mandatory_payments_risk');
     tags.push('alimony_debt');
-    reasons.push('В составе долга есть алименты — они не списываются, ситуацию нужно разобрать со специалистом.');
-    return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
+    reasons.push('В составе долга есть алименты — они не списываются, и ситуацию нужно подготовить до подачи.');
+    return finalize('yellow_b', tags, reasons, ctaShow, guidesShow);
   }
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])){
     tags.push('child_benefit_basis_check');
@@ -1254,13 +1292,20 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
+  /* v0.3: СВО + любой заработок — проверка основания (П-2 анкеты v1.9, консервативно до юрподтверждения) */
+  if(multiHas('Q7','C') && ['D','E','F','G'].includes(A['Q10'])){
+    tags.push('svo_basis_check');
+    reasons.push('Статус участника СВО и есть заработок — основание нужно проверить отдельно.');
+    return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
+  }
+  /* v0.3: повторное банкротство < 5 лет или прекращённая процедура (Q6a, П-6 анкеты v1.9) */
+  if(has('Q6a','C') || has('Q6a','D')){
+    tags.push('repeat_bankruptcy_check');
+    reasons.push('Была предыдущая процедура банкротства — сроки повторного обращения нужно проверить по документам.');
+    return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
+  }
 
   /* ===== Not Now (часть условий — раньше Yellow) ===== */
-  if(has('Q2','A')){
-    tags.push('small_debt');
-    reasons.push('Сумма долга очень небольшая — банкротство, скорее всего, не самый подходящий шаг.');
-    return finalize('not_now', tags, reasons, ctaShow, guidesShow);
-  }
   if(has('Q9','A') && has('Q6','D') && multiHas('Q7','E')){
     tags.push('no_legal_basis'); tags.push('no_overdue');
     reasons.push('Нет основания для банкротства через МФЦ и нет просрочек — банкротство сейчас может быть преждевременным.');
@@ -1273,6 +1318,12 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
+  /* v0.3: не помнит, было ли банкротство, — зона уточнения документов */
+  if(has('Q6a','E')){
+    tags.push('documents_requested');
+    reasons.push('Нужно уточнить, была ли раньше процедура банкротства, — от этого зависят сроки и возможность подачи.');
+    return finalize('yellow_a', tags, reasons, ctaShow, guidesShow);
+  }
   /* v0.2.2: Q6=B + Q8=B — после окончания ИП появилось новое ИП.
      Основание формально по п.4 ч.1 ст.46 «протекает», требует подготовки.
      Не Green и не Yellow A — это Yellow B. */
@@ -1300,7 +1351,8 @@ function calcRoute(){
   }
 
   /* ===== Green ===== */
-  if(hasBasis && ['B','C','D'].includes(A['Q2']) &&
+  if(hasBasis && ['C','D'].includes(A['Q2']) &&
+     ['A','B'].includes(A['Q6a'] || 'A') &&
      has('Q4','A') && (multiHas('Q12','A') || multiHas('Q12','G')) &&
      has('Q14','A') && has('Q16','A') && has('Q17','A') &&
      ['A','B','C'].includes(A['Q10'])){
@@ -1315,7 +1367,7 @@ function calcRoute(){
 }
 
 function finalize(route, tags, reasons, ctaShow, guidesShow){
-  return { route, tags, reasons };
+  return { route, tags: [...new Set(tags)], reasons };  /* v0.3: дедупликация тегов */
 }
 
 /* ============== СОДЕРЖАНИЕ ЭКРАНОВ РЕЗУЛЬТАТА ============== */
@@ -1440,7 +1492,9 @@ const RISK_TAG_LABELS = {
   fssp_data_unclear:       'по приставам не хватает данных, поэтому нельзя делать вывод только по анкете',
   child_benefit_basis_check:'получение пособия как основание для МФЦ нужно проверить отдельно',
   pension_basis_check:     'пенсионный статус как основание для МФЦ нужно проверить отдельно',
-  debt_amount_risk:        'сумма долга в спорной зоне — её нужно пересчитать по документам'
+  debt_amount_risk:        'сумма долга в спорной зоне — её нужно пересчитать по документам',
+  repeat_bankruptcy_check: 'была предыдущая процедура банкротства — сроки повторного обращения нужно проверить',
+  svo_basis_check:         'статус участника СВО как основание для МФЦ нужно проверить в связке с доходом'
 };
 function getMainRiskExplanation(tags){
   if(Array.isArray(tags)){
