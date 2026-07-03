@@ -575,13 +575,13 @@
 <!-- ========== МОДАЛКА ГАЙДОВ ========== -->
 <!-- ========== МОДАЛКА ВИДЕО-ГАЙДА (v0.4, правка 6) ========== -->
 <div class="modal-overlay" id="video-modal" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:720px">
+  <div class="modal" style="max-width:400px">
     <div class="modal-head">
       <h3 id="video-modal-title">Видео-инструкция</h3>
       <button class="modal-close" type="button" data-close="video-modal">✕</button>
     </div>
     <div class="modal-body">
-      <div style="position:relative; padding-top:56.25%">
+      <div style="position:relative; padding-top:177.78%">
         <iframe id="video-frame" src="" title="Видео-инструкция" frameborder="0"
           allow="clipboard-write; autoplay" allowfullscreen
           style="position:absolute; inset:0; width:100%; height:100%; border-radius:10px"></iframe>
@@ -623,6 +623,7 @@
     <h2 id="guide-title"></h2>
     <div id="guide-body"></div>
     <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-primary hidden" type="button" id="guide-video">▶ Смотреть видео-гайд</button>
       <button class="btn btn-secondary" type="button" id="guide-upload">Загрузить результат на проверку</button>
       <button class="btn btn-outline" type="button" id="guide-close-2">Закрыть</button>
     </div>
@@ -1878,16 +1879,17 @@ document.querySelectorAll('[data-close]').forEach(btn => {
 });
 
 /* v0.4 (правка 6): показать кнопки видео, если ссылки заданы */
+function openVideoModal(key){
+  $('video-modal-title').textContent = key === 'fssp'
+    ? 'Видео: проверка ФССП с телефона' : 'Видео: как получить БКИ с телефона';
+  $('video-frame').src = VIDEO_GUIDES[key];
+  $('video-modal').classList.add('is-open');
+}
 document.querySelectorAll('[data-video]').forEach(btn => {
   const key = btn.dataset.video;
   if(VIDEO_GUIDES[key]){
     btn.classList.remove('hidden');
-    btn.addEventListener('click', () => {
-      $('video-modal-title').textContent = key === 'fssp'
-        ? 'Видео: проверка ФССП с телефона' : 'Видео: как получить БКИ с телефона';
-      $('video-frame').src = VIDEO_GUIDES[key];
-      $('video-modal').classList.add('is-open');
-    });
+    btn.addEventListener('click', () => openVideoModal(key));
   }
 });
 
@@ -2195,8 +2197,21 @@ function openGuide(key){
   if(!g) return;
   $('guide-title').textContent = g.title;
   $('guide-body').innerHTML = g.body;
+  /* v0.4.1: кнопка видео внутри гайда, если ссылка задана */
+  const gv = $('guide-video');
+  if(VIDEO_GUIDES[key]){
+    gv.classList.remove('hidden');
+    gv.dataset.videokey = key;
+  } else {
+    gv.classList.add('hidden');
+  }
   $('guide-modal').classList.add('is-open');
 }
+$('guide-video').addEventListener('click', () => {
+  const key = $('guide-video').dataset.videokey;
+  if(!key || !VIDEO_GUIDES[key]) return;
+  openVideoModal(key);
+});
 function closeGuide(){
   $('guide-modal').classList.remove('is-open');
 }
