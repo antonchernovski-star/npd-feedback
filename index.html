@@ -6,19 +6,19 @@
 <title>НАВИГАТОР ПО ДОЛГАМ — предварительная диагностика</title>
 <style>
   :root{
-    --bg:#f6f7f9;
+    --bg:#F7F5F3;
     --surface:#ffffff;
-    --border:#e3e6ec;
-    --text:#1f2430;
-    --muted:#5b6373;
-    --soft:#8a90a0;
-    --accent:#2f5cd0;
-    --accent-soft:#eaf0ff;
-    --accent-hover:#244ab0;
+    --border:#e7e1da;
+    --text:#2F2F2F;
+    --muted:#6E6E6E;
+    --soft:#9a938c;
+    --accent:#C96A3B;
+    --accent-soft:#F6EAE2;
+    --accent-hover:#8A4B2D;
     --warn-bg:#fff8e6;
     --warn-border:#f0d68a;
-    --tag-bg:#eef1f6;
-    --shadow:0 2px 14px rgba(20,30,60,0.06);
+    --tag-bg:#f0ebe5;
+    --shadow:0 2px 14px rgba(60,40,20,0.06);
     --radius:14px;
   }
   *{box-sizing:border-box}
@@ -36,7 +36,7 @@
   .topbar-right{display:flex; gap:8px; align-items:center}
   .ghost{background:transparent; border:1px solid var(--border); color:var(--muted);
     padding:8px 12px; border-radius:10px; cursor:pointer; font-size:13px}
-  .ghost:hover{background:#f0f2f6; color:var(--text)}
+  .ghost:hover{background:#f0ebe5; color:var(--text)}
 
   .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
     box-shadow:var(--shadow); padding:28px; margin-bottom:18px;}
@@ -47,22 +47,22 @@
   .lead{color:var(--muted); font-size:16px}
   .small{color:var(--soft); font-size:13px}
 
-  .disclaimer{margin-top:18px; padding:12px 14px; background:#f3f5fa;
+  .disclaimer{margin-top:18px; padding:12px 14px; background:#f2ede7;
     border-radius:10px; color:var(--muted); font-size:13px; line-height:1.5;}
 
   .btn{display:inline-block; border:none; cursor:pointer; padding:12px 18px;
     border-radius:10px; font-size:15px; font-weight:500; transition:background .15s;}
   .btn:disabled{opacity:0.45; cursor:not-allowed}
-  .btn-primary{background:var(--accent); color:#fff}
+  .btn-primary{background:#8A4B2D; color:#fff}
   .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
   .btn-secondary{background:var(--accent-soft); color:var(--accent)}
   .btn-secondary:hover:not(:disabled){background:#dde6fb}
   .btn-outline{background:transparent; border:1px solid var(--border); color:var(--text)}
-  .btn-outline:hover:not(:disabled){background:#f0f2f6}
+  .btn-outline:hover:not(:disabled){background:#f0ebe5}
   .btn-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px}
 
   .progress{display:flex; align-items:center; gap:10px; margin-bottom:18px}
-  .progress-bar{flex:1; height:6px; background:#e8ebf2; border-radius:99px; overflow:hidden}
+  .progress-bar{flex:1; height:6px; background:#e7e1da; border-radius:99px; overflow:hidden}
   .progress-fill{height:100%; background:var(--accent); width:0%; transition:width .25s}
   .progress-text{font-size:12px; color:var(--muted); white-space:nowrap}
 
@@ -74,11 +74,11 @@
 
   .options{display:flex; flex-direction:column; gap:8px; margin-top:12px}
   .option{display:flex; align-items:flex-start; gap:12px;
-    padding:14px 16px; background:#fafbfd; border:1.5px solid var(--border);
+    padding:14px 16px; background:#fbf9f7; border:1.5px solid var(--border);
     border-radius:12px; cursor:pointer; font-size:15px;
     transition: background .12s, border-color .12s;}
-  .option:hover{background:#f1f4fa; border-color:#cfd5e2}
-  .option.is-selected{background:var(--accent-soft); border-color:#7fa1f5}
+  .option:hover{background:#f2ede7; border-color:#d8d0c7}
+  .option.is-selected{background:var(--accent-soft); border-color:#dba073}
   .option-box{flex-shrink:0; width:22px; height:22px; border:2px solid #b9c0d0;
     background:#fff; display:flex; align-items:center; justify-content:center;
     margin-top:1px; transition: all .12s;}
@@ -108,40 +108,40 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.4.7: стартовый экран — оффер и цифры */
-  #screen-start{background:linear-gradient(165deg,#f7faff 0%,#eef3fb 55%,#e9f0fa 100%)}
+  /* v0.4.8: стартовый экран — оффер и цифры */
+  #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
-    color:var(--accent); background:#e3ecfd; border-radius:999px; padding:6px 14px; margin-bottom:12px}
+    color:var(--accent); background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
   .hero-title{font-size:27px; line-height:1.22; margin:0 0 10px; color:var(--text)}
-  .hero-sub{font-size:16px; line-height:1.5; color:#41506a; margin:0 0 16px}
+  .hero-sub{font-size:16px; line-height:1.5; color:#55504a; margin:0 0 16px}
   .stat-row{display:flex; gap:12px; margin:16px 0 6px; flex-wrap:wrap}
   .stat{flex:1 1 150px; background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px 16px}
   .stat b{display:block; font-size:22px; color:var(--accent); line-height:1.1; margin-bottom:4px}
   .stat span{font-size:12.5px; color:var(--muted); line-height:1.35; display:block}
-  .stat-src{font-size:11.5px; color:#8b96a8; margin:4px 0 12px}
+  .stat-src{font-size:11.5px; color:#9a938c; margin:4px 0 12px}
   .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
-  .chip{font-size:13px; color:#3c4a63; background:#fff; border:1px solid var(--border);
+  .chip{font-size:13px; color:#55504a; background:#fff; border:1px solid var(--border);
     border-radius:999px; padding:7px 13px}
   .law-note{margin-top:14px; padding:12px 14px; border:1px solid #e4d9bd; background:#fbf7ec;
     border-radius:12px; font-size:13px; line-height:1.5; color:#5c4d23}
   #start-actions{position:sticky; bottom:0; z-index:5;
-    background:linear-gradient(to top,#e9f0fa 72%, rgba(233,240,250,0));
+    background:linear-gradient(to top,#f1e9e1 72%, rgba(233,240,250,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.4.7: бургер-меню */
+  /* v0.4.8: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
-    background:#fff; cursor:pointer; font-size:18px; color:#3c4a63; line-height:1}
+    background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
     border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 28px rgba(20,40,80,.14);
     min-width:230px; padding:6px; display:none}
   #menu-drop.is-open{display:block}
   #menu-drop button{display:block; width:100%; text-align:left; background:none; border:none;
     padding:12px 14px; font-size:14.5px; color:var(--text); cursor:pointer; border-radius:8px}
-  #menu-drop button:hover{background:#f2f6fb}
+  #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.4.7: sticky-кнопка отправки документов */
+  /* v0.4.8: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -172,7 +172,7 @@
   /* v0.4.3: превью видео-гайда — понятная карточка с кнопкой Play */
   .video-preview{display:flex; align-items:center; gap:14px; margin-top:12px;
     padding:10px 14px; border:1px solid var(--border); border-radius:14px;
-    background:linear-gradient(135deg,#f2f6fb 0%,#e9eef7 100%); cursor:pointer;
+    background:linear-gradient(135deg,#f5efe9 0%,#eae4dd 100%); cursor:pointer;
     transition:box-shadow .15s, transform .15s; user-select:none}
   .video-preview:hover{box-shadow:0 4px 14px rgba(30,60,120,.12); transform:translateY(-1px)}
   .video-preview .vp-thumb{position:relative; flex:0 0 auto; width:46px; height:76px;
@@ -199,7 +199,7 @@
   }
 
   .help-details{margin-top:14px; border:1px solid var(--border);
-    border-radius:10px; background:#fafbfd; overflow:hidden}
+    border-radius:10px; background:#fbf9f7; overflow:hidden}
   .help-details summary{cursor:pointer; padding:10px 14px; font-size:14px;
     color:var(--accent); list-style:none; user-select:none; font-weight:500}
   .help-details summary::-webkit-details-marker{display:none}
@@ -217,9 +217,9 @@
     letter-spacing:0.2px;}
 
   .cards-grid{display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px}
-  .step-card{padding:18px; border:1px solid var(--border); background:#fafbfd;
+  .step-card{padding:18px; border:1px solid var(--border); background:#fbf9f7;
     border-radius:12px; transition: opacity .15s}
-  .step-card.is-locked{opacity:0.7; background:#f4f6fa}
+  .step-card.is-locked{opacity:0.7; background:#f2ede7}
   .step-card.is-final{border-color:#d8a83e}
   .step-card h3{margin:0 0 6px; font-size:16px; display:flex; align-items:center; gap:6px}
   .step-card p{margin:4px 0; color:var(--muted); font-size:14px}
@@ -246,22 +246,22 @@
 
   .doc-types{display:flex; flex-direction:column; gap:8px; margin-top:10px}
   .doc-type{display:flex; align-items:center; gap:10px; padding:12px 14px;
-    background:#fafbfd; border:1.5px solid var(--border); border-radius:10px;
+    background:#fbf9f7; border:1.5px solid var(--border); border-radius:10px;
     cursor:pointer; font-size:14px; transition: all .12s}
-  .doc-type:hover{background:#f1f4fa; border-color:#cfd5e2}
-  .doc-type.is-selected{background:var(--accent-soft); border-color:#7fa1f5}
+  .doc-type:hover{background:#f2ede7; border-color:#d8d0c7}
+  .doc-type.is-selected{background:var(--accent-soft); border-color:#dba073}
   .doc-type input{accent-color:var(--accent)}
 
   .doc-zones{margin-top:18px; display:flex; flex-direction:column; gap:10px}
   .doc-zone{padding:16px; border:1.5px dashed #c5cdde; border-radius:10px;
-    background:#fafbfd; color:var(--muted); font-size:14px;}
+    background:#fbf9f7; color:var(--muted); font-size:14px;}
   .doc-zone strong{color:var(--text); display:block; margin-bottom:4px}
 
-  .doc-summary{margin-top:14px; padding:12px 14px; background:#eaf0ff;
+  .doc-summary{margin-top:14px; padding:12px 14px; background:#F6EAE2;
     border-radius:10px; font-size:14px; color:var(--accent)}
-  .doc-summary.is-empty{background:#f3f5fa; color:var(--muted)}
+  .doc-summary.is-empty{background:#f2ede7; color:var(--muted)}
 
-  .info-box{margin:14px 0; padding:14px 16px; background:#eaf0ff;
+  .info-box{margin:14px 0; padding:14px 16px; background:#F6EAE2;
     border-radius:10px; font-size:14px; color:var(--accent); line-height:1.55}
 
   .debug{margin-top:24px; background:#fffaf0; border:1px solid #f0d68a;
@@ -1456,7 +1456,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.4.7: бургер-меню */
+/* v0.4.8: бургер-меню */
 $('menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   $('menu-drop').classList.toggle('is-open');
@@ -1520,7 +1520,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.4.7 (Ю-2): безусловно */
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.4.8 (Ю-2): безусловно */
 
   /* ===== Мгновенный Not Now ===== */
   if(has('Q1','D')){
@@ -1620,14 +1620,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.4.7 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.4.8 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.4.7 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.4.8 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1648,7 +1648,7 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.4.7 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.4.8 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1939,7 +1939,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.4.7: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.4.8: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -2011,7 +2011,7 @@ function renderResult(result){
   /* v0.2.3: блок «Почему МФЦ может быть не лучшим вариантом и что дальше» для BFL Better */
   if(result.route === 'bfl_better'){
     bodyHtml += `
-      <div class="info-box" style="background:#f3f5fa; color:var(--text); line-height:1.6">
+      <div class="info-box" style="background:#f2ede7; color:var(--text); line-height:1.6">
         <strong>Что это значит и что дальше.</strong><br>
         МФЦ — это внесудебное банкротство. Оно подходит не всем: ограничен лимит
         суммы, есть требования к основанию, к имуществу и к свежим кредитам.
