@@ -92,7 +92,46 @@
   .option .option-ok{font-size:12px; color:#5b8a3a; margin-top:2px}
   .option input{position:absolute; opacity:0; pointer-events:none}
 
-    /* v0.4.3: превью видео-гайда — понятная карточка с кнопкой Play */
+    /* v0.4.4 (UX-аудит): шапка модалки и крестик закрытия — справа сверху, 44x44 */
+  .modal-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px}
+  .modal-head h3{margin:0; font-size:17px; line-height:1.3}
+  .modal-close{flex:0 0 auto; width:44px; height:44px; margin:-6px -6px 0 0;
+    border:none; border-radius:50%; background:#eef1f6; color:#48505c; font-size:18px;
+    line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s}
+  .modal-close:hover{background:#e0e6ef}
+  .modal-close:active{background:#d3dbe8}
+
+  /* v0.4.4: тач-таргеты и крупные поля */
+  .btn{min-height:48px}
+  input[type=text], input[type=email], input[type=tel], select, textarea{font-size:16px}
+  .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
+  .consent-row{padding:6px 0; cursor:pointer}
+
+  /* v0.4.4: sticky-панель навигации квиза — кнопки всегда видны */
+  .nav-row{position:sticky; bottom:0; z-index:5;
+    background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
+    padding:14px 0 max(10px, env(safe-area-inset-bottom));}
+  #next-btn{flex:1 1 auto; min-height:52px; font-size:16px}
+  #back-btn{min-height:52px}
+
+  /* v0.4.4: выбранный вариант — контрастнее */
+  .option.is-selected{background:var(--accent-soft); border-color:var(--accent); border-width:2px;
+    padding:13px 15px}
+
+  /* v0.4.4: прогресс заметнее */
+  .progress-bar{height:8px}
+  .progress-text{font-size:13.5px; font-weight:600; color:var(--text)}
+
+  /* v0.4.4: мобильная раскладка результата и шапки */
+  @media (max-width:640px){
+    #result-cta{flex-direction:column}
+    #result-cta .btn{width:100%}
+    #restart-btn{font-size:12px; padding:6px 10px}
+    #result-contact .btn{width:100%}
+  }
+
+  /* v0.4.3: превью видео-гайда — понятная карточка с кнопкой Play */
   .video-preview{display:flex; align-items:center; gap:14px; margin-top:12px;
     padding:10px 14px; border:1px solid var(--border); border-radius:14px;
     background:linear-gradient(135deg,#f2f6fb 0%,#e9eef7 100%); cursor:pointer;
@@ -213,7 +252,7 @@
   @media (max-width:520px){
     .card{padding:20px}
     .card h1{font-size:24px}
-    .btn{padding:11px 14px; font-size:14px}
+    .btn{padding:12px 16px; font-size:15px; min-height:48px}
     .topbar{padding:12px 14px}
     .page{padding:18px 14px 48px}
   }
@@ -1755,6 +1794,15 @@ function renderResultContact(result){
     </div>
     <div class="hint" id="lead-status" style="margin-top:8px"></div>
   `;
+  /* v0.4.4: правильная клавиатура на телефоне под выбранный канал */
+  const chSel = document.getElementById('lead-channel');
+  const contactInp = document.getElementById('lead-contact');
+  chSel.addEventListener('change', () => {
+    const v = chSel.value;
+    if(v === 'email'){ contactInp.type = 'email'; contactInp.inputMode = 'email'; contactInp.placeholder = 'name@example.ru'; }
+    else if(v === 'phone' || v === 'whatsapp'){ contactInp.type = 'tel'; contactInp.inputMode = 'tel'; contactInp.placeholder = '+7 ___ ___-__-__'; }
+    else { contactInp.type = 'text'; contactInp.inputMode = 'text'; contactInp.placeholder = '@ник в Telegram'; }
+  });
   document.getElementById('lead-submit').addEventListener('click', async () => {
     const name = document.getElementById('lead-name').value.trim();
     const channel = document.getElementById('lead-channel').value;
@@ -1955,12 +2003,22 @@ $('copy-save-link').addEventListener('click', async () => {
     $('save-copy-status').textContent = 'Выделите ссылку и скопируйте вручную (Ctrl+C).';
   }
 });
+function closeOverlay(id){
+  const m = $(id);
+  if(!m) return;
+  m.classList.remove('is-open');
+  if(id === 'video-modal') $('video-frame').src = '';
+}
 document.querySelectorAll('[data-close]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const m = $(btn.dataset.close);
-    m.classList.remove('is-open');
-    if(btn.dataset.close === 'video-modal') $('video-frame').src = '';
-  });
+  btn.addEventListener('click', () => closeOverlay(btn.dataset.close));
+});
+/* v0.4.4: закрытие по клику на затемнение и по Esc — для всех модалок */
+['video-modal','save-modal'].forEach(id => {
+  $(id).addEventListener('click', (e) => { if(e.target === $(id)) closeOverlay(id); });
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key !== 'Escape') return;
+  document.querySelectorAll('.modal-overlay.is-open').forEach(m => closeOverlay(m.id));
 });
 
 /* v0.4 (правка 6): показать кнопки видео, если ссылки заданы */
@@ -1975,6 +2033,10 @@ document.querySelectorAll('[data-video]').forEach(btn => {
   if(VIDEO_GUIDES[key]){
     btn.classList.remove('hidden');
     btn.addEventListener('click', () => openVideoModal(key));
+    /* v0.4.4: доступность — открытие с клавиатуры */
+    btn.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openVideoModal(key); }
+    });
   }
 });
 
