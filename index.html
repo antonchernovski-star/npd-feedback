@@ -108,7 +108,7 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.4.6: стартовый экран — оффер и цифры */
+  /* v0.4.7: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#f7faff 0%,#eef3fb 55%,#e9f0fa 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     color:var(--accent); background:#e3ecfd; border-radius:999px; padding:6px 14px; margin-bottom:12px}
@@ -129,7 +129,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.4.6: бургер-меню */
+  /* v0.4.7: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#3c4a63; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -141,7 +141,7 @@
   #menu-drop button:hover{background:#f2f6fb}
   .topbar{position:relative}
 
-  /* v0.4.6: sticky-кнопка отправки документов */
+  /* v0.4.7: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -942,13 +942,14 @@ const QUESTIONS = [
     id:'Q6a', type:'single',
     title:'Проходили ли вы раньше процедуру банкротства?',
     hint:'Судебную или через МФЦ. Если не уверены — выберите последний вариант.',
-    helpText:'<p>Повторное банкротство через МФЦ возможно не раньше, чем через <strong>5 лет</strong> после предыдущей процедуры. Если процедура была начата и прекращена, сроки нужно проверять отдельно — это не отказ, а проверка.</p>',
+    helpText:'<p>Здесь важна разница. Если заявление <strong>вернули в МФЦ</strong> и процедура не начиналась — повторно подать можно уже через месяц. Если процедура <strong>была начата</strong> (сведения опубликованы в реестре) и потом её прекратили — повторное банкротство через МФЦ возможно не раньше, чем через <strong>5 лет</strong> со дня прекращения. Это не отказ, а проверка сроков.</p>',
     options:[
       {v:'A', label:'Нет, никогда'},
       {v:'B', label:'Да, завершилась более 5 лет назад'},
       {v:'C', label:'Да, завершилась менее 5 лет назад'},
-      {v:'D', label:'Да, была начата, но прекращена или заявление вернули'},
-      {v:'E', label:'Не уверен(а) / не помню', okHint:'Это нормальный ответ'}
+      {v:'D', label:'Подавал(а) заявление, но МФЦ его вернули — процедура не начиналась'},
+      {v:'E', label:'Процедура была начата, но её прекратили'},
+      {v:'F', label:'Не уверен(а) / не помню', okHint:'Это нормальный ответ'}
     ]
   },
   {
@@ -1455,7 +1456,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.4.6: бургер-меню */
+/* v0.4.7: бургер-меню */
 $('menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   $('menu-drop').classList.toggle('is-open');
@@ -1519,7 +1520,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C') && ['D','E','F','G'].includes(A['Q10'])) tags.push('svo_basis_check');
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.4.7 (Ю-2): безусловно */
 
   /* ===== Мгновенный Not Now ===== */
   if(has('Q1','D')){
@@ -1619,16 +1620,18 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.3: СВО + любой заработок — проверка основания (П-2 анкеты v1.9, консервативно до юрподтверждения) */
-  if(multiHas('Q7','C') && ['D','E','F','G'].includes(A['Q10'])){
+  /* v0.4.7 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+     доход не является условием. Основание новое, устойчивой практики мало. */
+  if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
-    reasons.push('Статус участника СВО и есть заработок — основание нужно проверить отдельно.');
+    reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.3: повторное банкротство < 5 лет или прекращённая процедура (Q6a, П-6 анкеты v1.9) */
-  if(has('Q6a','C') || has('Q6a','D')){
+  /* v0.4.7 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+     повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
+  if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
-    reasons.push('Была предыдущая процедура банкротства — сроки повторного обращения нужно проверить по документам.');
+    reasons.push('Была предыдущая процедура банкротства — повторное обращение возможно не раньше чем через 5 лет, срок нужно проверить по документам и реестру.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
 
@@ -1645,8 +1648,15 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.3: не помнит, было ли банкротство, — зона уточнения документов */
-  if(has('Q6a','E')){
+  /* v0.4.7 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+     повторная подача возможна через месяц, но причину возврата нужно устранить */
+  if(has('Q6a','D')){
+    tags.push('mfc_return_history');
+    reasons.push('Заявление уже возвращали из МФЦ. Повторно подать можно через месяц после возврата, но сначала важно понять причину возврата и устранить её — иначе вернут снова.');
+    return finalize('yellow_b', tags, reasons, ctaShow, guidesShow);
+  }
+  /* не помнит, было ли банкротство, — зона уточнения документов */
+  if(has('Q6a','F')){
     tags.push('documents_requested');
     reasons.push('Нужно уточнить, была ли раньше процедура банкротства, — от этого зависят сроки и возможность подачи.');
     return finalize('yellow_a', tags, reasons, ctaShow, guidesShow);
@@ -1821,7 +1831,8 @@ const RISK_TAG_LABELS = {
   pension_basis_check:     'пенсионный статус как основание для МФЦ нужно проверить отдельно',
   debt_amount_risk:        'сумма долга в спорной зоне — её нужно пересчитать по документам',
   repeat_bankruptcy_check: 'была предыдущая процедура банкротства — сроки повторного обращения нужно проверить',
-  svo_basis_check:         'статус участника СВО как основание для МФЦ нужно проверить в связке с доходом'
+  svo_basis_check:         'основание «участник СВО» требует индивидуальной юридической проверки — практики по нему пока мало',
+  mfc_return_history:      'заявление возвращалось из МФЦ — повторная подача возможна через месяц после устранения причины возврата'
 };
 function getMainRiskExplanation(tags){
   if(Array.isArray(tags)){
@@ -1928,7 +1939,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.4.6: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.4.7: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
