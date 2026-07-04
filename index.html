@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.4</title>
+<title>НАВИГАТОР ПО ДОЛГАМ — предварительная диагностика</title>
 <style>
   :root{
     --bg:#f6f7f9;
@@ -107,6 +107,12 @@
   input[type=text], input[type=email], input[type=tel], select, textarea{font-size:16px}
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
+
+  /* v0.4.5: sticky-кнопка отправки документов */
+  #upload-actions{position:sticky; bottom:0; z-index:5;
+    background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
+    padding:14px 0 max(10px, env(safe-area-inset-bottom))}
+  #upload-submit{flex:1 1 auto; min-height:52px; font-size:16px}
 
   /* v0.4.4: sticky-панель навигации квиза — кнопки всегда видны */
   .nav-row{position:sticky; bottom:0; z-index:5;
@@ -262,7 +268,7 @@
 
 <div class="topbar">
   <div class="brand">НАВИГАТОР ПО ДОЛГАМ
-    <small>Кликабельный прототип v0.4 · не production-версия</small>
+    <small>Бесплатная предварительная диагностика</small>
   </div>
   <div class="topbar-right">
     <button class="ghost" id="restart-btn" type="button">Начать заново</button>
@@ -326,7 +332,7 @@
       <button class="btn btn-primary" id="next-btn" type="button" disabled>Дальше →</button>
     </div>
 
-    <div class="hint">Это прототип. Реальные документы и контактные данные
+    <div class="hint">Ответы анонимны. Документы и контактные данные
       на этом шаге не запрашиваются.</div>
   </section>
 
@@ -349,7 +355,7 @@
       <button class="btn btn-outline" type="button" data-go="start">Пройти диагностику заново</button>
     </div>
 
-    <!-- debug-блок удалён в пользовательской сборке (v0.4) -->
+    <!-- debug-блок удалён в пользовательской сборке -->
   </section>
 
   <!-- ========== ЭКРАН GREEN SELF-SERVICE ========== -->
@@ -390,7 +396,7 @@
            Затем в каждом бюро — кредитный отчёт. Это даёт полный список кредиторов
            и помогает заметить уступки коллекторам, ипотеку и поручительства.</p>
         <div class="btn-row">
-          <button class="btn btn-outline" type="button" data-guide="bki">Посмотреть в прототипе</button>
+          <button class="btn btn-outline" type="button" data-guide="bki">Открыть гайд</button>
           <div class="video-preview hidden" data-video="bki" role="button" tabindex="0" aria-label="Смотреть видео-гайд по получению кредитной истории">
             <span class="vp-thumb"></span>
             <span class="vp-text">
@@ -400,7 +406,7 @@
             <span class="vp-badge">▶ Смотреть</span>
           </div>
         </div>
-        <div class="step-locked-note">В реальной версии этот шаг лучше проходить после шага 1.</div>
+        <div class="step-locked-note">Этот шаг лучше проходить после шага 1.</div>
       </div>
 
       <div class="step-card is-locked">
@@ -409,9 +415,9 @@
            кто сейчас актуальный кредитор, основание, сумма и источник суммы.
            Если кредитор не указан, долг перед ним может не списаться.</p>
         <div class="btn-row">
-          <button class="btn btn-outline" type="button" data-guide="creditors">Посмотреть в прототипе</button>
+          <button class="btn btn-outline" type="button" data-guide="creditors">Открыть гайд</button>
         </div>
-        <div class="step-locked-note">В реальной версии этот шаг лучше проходить после шагов 1 и 2.</div>
+        <div class="step-locked-note">Этот шаг лучше проходить после шагов 1 и 2.</div>
       </div>
 
       <div class="step-card is-locked is-final">
@@ -420,9 +426,9 @@
            заполнить, собрать паспорт и сопровождающие документы, подать в МФЦ
            по месту жительства.</p>
         <div class="btn-row">
-          <button class="btn btn-outline" type="button" data-guide="mfc">Посмотреть в прототипе</button>
+          <button class="btn btn-outline" type="button" data-guide="mfc">Открыть гайд</button>
         </div>
-        <div class="step-locked-note">В реальной версии этот шаг лучше проходить после шагов 1, 2 и 3.</div>
+        <div class="step-locked-note">Этот шаг лучше проходить после шагов 1, 2 и 3.</div>
         <div class="step-final-note">Это финальный шаг. Не начинайте с него.</div>
       </div>
 
@@ -448,34 +454,49 @@
       что нужно поправить до подачи.</p>
 
     <div class="info-box" id="upload-mode-note">
-      <strong>Это прототип.</strong> Файлы в этой версии не загружаются и никуда
-      не отправляются. Персональные данные не сохраняются.
+      Файлы увидит только специалист, который проверяет документы.
+      Мы не передаём их третьим лицам без вашего согласия.
     </div>
 
-    <h3>1. Что вы хотите передать на проверку?</h3>
-    <span class="multi-hint">✓ Можно выбрать несколько типов документов</span>
+    <h3>1. Документы для проверки</h3>
+    <div class="info-box" style="margin-top:8px">
+      <strong>Для полного анализа достаточно двух вещей:</strong> выгрузка из ФССП
+      и кредитные отчёты из всех бюро, где есть ваша история.<br><br>
+      Как собрать отчёты: сначала через Госуслуги запросите список ваших бюро
+      (запрос в ЦККИ — в видео показано, как), затем получите отчёт в каждом
+      бюро из списка и приложите их все.
+    </div>
+    <div class="btn-row" style="margin:10px 0 4px">
+      <button class="btn btn-outline hidden" type="button" data-video="fssp" style="min-height:44px">▶ Видео: проверка ФССП</button>
+      <button class="btn btn-outline hidden" type="button" data-video="bki" style="min-height:44px">▶ Видео: список бюро и отчёты БКИ</button>
+    </div>
 
     <div class="doc-types" id="doc-types">
+      <div class="hint" style="margin:8px 0 4px; font-weight:600; color:var(--text)">Основное — этого достаточно:</div>
       <label class="doc-type" data-doctype="fssp">
         <input type="checkbox" value="fssp">
-        <span>Скриншоты или PDF из ФССП</span>
+        <span>Выгрузка или скриншоты из ФССП</span>
       </label>
       <label class="doc-type" data-doctype="bki">
         <input type="checkbox" value="bki">
-        <span>Кредитные отчёты БКИ</span>
+        <span>Кредитные отчёты из всех БКИ по списку ЦККИ</span>
       </label>
-      <label class="doc-type" data-doctype="creditors">
-        <input type="checkbox" value="creditors">
-        <span>Список кредиторов</span>
-      </label>
-      <label class="doc-type" data-doctype="mfc">
-        <input type="checkbox" value="mfc">
-        <span>Заполненная форма заявления для МФЦ</span>
-      </label>
-      <label class="doc-type" data-doctype="other">
-        <input type="checkbox" value="other">
-        <span>Другие документы</span>
-      </label>
+      <details class="doc-extra" style="margin-top:10px">
+        <summary style="cursor:pointer; font-size:14px; color:var(--muted); padding:6px 0">
+          Дополнительно, если уже есть (не обязательно)</summary>
+        <label class="doc-type" data-doctype="creditors" style="margin-top:8px">
+          <input type="checkbox" value="creditors">
+          <span>Список кредиторов</span>
+        </label>
+        <label class="doc-type" data-doctype="mfc">
+          <input type="checkbox" value="mfc">
+          <span>Заполненная форма заявления для МФЦ</span>
+        </label>
+        <label class="doc-type" data-doctype="other">
+          <input type="checkbox" value="other">
+          <span>Другие документы (справки, решения судов и т.п.)</span>
+        </label>
+      </details>
     </div>
 
     <div class="doc-summary is-empty" id="doc-summary">
@@ -488,11 +509,11 @@
 
     <h3>2. Контакт для связи</h3>
     <div class="form-row">
-      <label for="up-name">Как к вам обращаться (необязательно для прототипа)</label>
+      <label for="up-name">Как к вам обращаться</label>
       <input id="up-name" type="text" placeholder="Имя">
     </div>
     <div class="form-row">
-      <label for="up-contact">Удобный канал связи (необязательно для прототипа)</label>
+      <label for="up-contact">Куда ответить (телефон, Telegram или e-mail)</label>
       <input id="up-contact" type="text" placeholder="Телефон, Telegram или e-mail">
     </div>
     <div class="form-row">
@@ -502,11 +523,10 @@
 
     <label class="checkbox">
       <input type="checkbox" id="up-consent">
-      <span>Согласен на обработку данных для проверки документов.
-        В прототипе данные никуда не отправляются.</span>
+      <span>Согласен(на) на обработку данных, чтобы специалист проверил документы.</span>
     </label>
 
-    <div class="btn-row">
+    <div class="btn-row" id="upload-actions">
       <button class="btn btn-primary" type="button" id="upload-submit" disabled>Отправить на проверку</button>
       <button class="btn btn-outline" type="button" data-go="back-from-upload">← Назад</button>
     </div>
@@ -525,9 +545,9 @@
   <section id="screen-not-now-plan" class="card hidden">
     <span class="result-badge">План контроля долговой ситуации</span>
     <h2>План контроля долговой ситуации</h2>
-    <p>В реальной версии здесь будет короткий чек-лист контроля: что отслеживать
-       в ФССП, БКИ, доходах и судебных приказах, и когда вернуться к диагностике.
-       В этом прототипе мы показываем сам факт того, что этот шаг существует.</p>
+    <p>Что стоит отслеживать: новые дела в ФССП, изменения в кредитной истории,
+       судебные приказы и письма от кредиторов. Если что-то изменится —
+       вернитесь и пройдите диагностику заново: ситуация могла стать другой.</p>
 
     <div class="btn-row" style="margin-top:14px">
       <button class="btn btn-primary" type="button" data-go="upload">Передать документы на расширенную диагностику</button>
@@ -542,16 +562,15 @@
 
   <!-- ========== ЭКРАН ПОДТВЕРЖДЕНИЯ ОТПРАВКИ ========== -->
   <section id="screen-upload-done" class="card hidden">
-    <h2>Готово. Это имитация — в реальной версии документы ушли бы специалисту по выбранному каналу связи</h2>
-    <p>В реальной версии здесь будет загрузка файлов и передача данных специалисту
-       по каналу, который вы выбрали.</p>
+    <h2 id="upload-done-title">Готово — документы у специалиста</h2>
+    <p>Специалист посмотрит документы и ответит по каналу, который вы указали.
+       Звонить без запроса не будем.</p>
 
     <div class="info-box" id="upload-done-summary">
       Вы передали: —
     </div>
 
-    <p class="lead">В этом прототипе никакие данные не отправляются и не сохраняются.
-      Файлы по факту не загружались.</p>
+    
 
     <div class="btn-row">
       <button class="btn btn-outline" type="button" data-go="result">← К результату диагностики</button>
@@ -717,8 +736,7 @@
       <button class="btn btn-outline" type="button" id="guide-close-2">Закрыть</button>
     </div>
     <div class="disclaimer">
-      Это короткое описание гайда для прототипа. Полные тексты гайдов 19–22
-      подключаются как отдельные страницы или PDF в production-версии.
+      
       Материал носит информационный характер и не является юридической консультацией.
     </div>
   </div>
@@ -1152,7 +1170,7 @@ function renderQuestion(){
     wrap.innerHTML = `
       В реальной версии здесь будет короткий контактный блок, если вы захотите
       сохранить результат или получить его на почту или в мессенджер.<br><br>
-      В этом прототипе мы сразу покажем ваш предварительный маршрут.
+      Сейчас мы сразу покажем ваш предварительный маршрут.
     `;
     container.appendChild(wrap);
     $('next-btn').disabled = false;
@@ -1746,6 +1764,7 @@ function finishQuiz(){
   STATE.lastResultMeta = result;
   trackStep('result', result.route);  /* v0.4.3: воронка */
   renderResult(result);
+  renderResultGuides(result);
   renderResultContact(result);
   showScreen('screen-result');
 }
@@ -1786,8 +1805,7 @@ function renderResultContact(result){
     <label class="consent-row" style="display:flex; gap:8px; align-items:flex-start; font-size:13px; margin:8px 0">
       <input type="checkbox" id="lead-consent" style="margin-top:3px">
       <span>Согласен(на) на обработку указанных данных, чтобы получить результат
-      диагностики. <em>(Текст согласия — заглушка прототипа, финальную редакцию
-      даёт юрист.)</em></span>
+      диагностики.</span>
     </label>
     <div class="btn-row">
       <button class="btn btn-primary" type="button" id="lead-submit">Отправить мне результат</button>
@@ -1823,7 +1841,7 @@ function renderResultContact(result){
           <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
             <strong>Заявка ${appId} принята.</strong><br>
             ${r.status === 'simulated'
-              ? 'Это прототип: форма ещё не подключена к таблице, данные никуда не отправлены.'
+              ? 'Демо-режим: данные никуда не отправлены.'
               : 'Мы отправим результат на указанный канал. Звонить без запроса не будем.'}
           </div>`;
       } else {
@@ -1832,6 +1850,58 @@ function renderResultContact(result){
     }catch(e){
       st.textContent = 'Не получилось отправить (нет связи). Результат сохранён в браузере.';
     }
+  });
+}
+
+/* v0.4.5: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+   (в Green они уже встроены в самостоятельный маршрут).
+   Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
+   это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
+function renderResultGuides(result){
+  let rg = document.getElementById('result-guides');
+  if(result.route === 'green'){ if(rg) rg.remove(); return; }
+  if(!rg){
+    rg = document.createElement('div');
+    rg.id = 'result-guides';
+    const cta = $('result-cta');
+    cta.parentNode.insertBefore(rg, cta.nextSibling);
+  }
+  rg.innerHTML = `
+    <h3 style="margin:20px 0 4px">Пока думаете — проверьте основу сами, это бесплатно</h3>
+    <p class="lead" style="font-size:14px; margin-top:2px">Выгрузка ФССП и кредитные отчёты
+    в любом случае понадобятся — и вам, и специалисту.</p>
+    <div class="video-preview" data-rg="fssp" role="button" tabindex="0">
+      <span class="vp-thumb"></span>
+      <span class="vp-text">
+        <span class="vp-title">Проверить себя в ФССП</span>
+        <span class="vp-sub">Видео с телефона + текстовый гайд</span>
+      </span>
+      <span class="vp-badge">▶ Смотреть</span>
+    </div>
+    <div class="btn-row" style="margin:6px 0 12px">
+      <button class="btn btn-outline" type="button" data-rg-guide="fssp">Открыть текстовый гайд ФССП</button>
+    </div>
+    <div class="video-preview" data-rg="bki" role="button" tabindex="0">
+      <span class="vp-thumb"></span>
+      <span class="vp-text">
+        <span class="vp-title">Получить кредитные отчёты (БКИ)</span>
+        <span class="vp-sub">Сначала список бюро через Госуслуги — видео + гайд</span>
+      </span>
+      <span class="vp-badge">▶ Смотреть</span>
+    </div>
+    <div class="btn-row" style="margin:6px 0 4px">
+      <button class="btn btn-outline" type="button" data-rg-guide="bki">Открыть текстовый гайд БКИ</button>
+    </div>
+  `;
+  rg.querySelectorAll('[data-rg]').forEach(el => {
+    const key = el.dataset.rg;
+    if(!VIDEO_GUIDES[key]){ el.classList.add('hidden'); return; }
+    const open = () => openVideoModal(key);
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+  });
+  rg.querySelectorAll('[data-rg-guide]').forEach(el => {
+    el.addEventListener('click', () => openGuide(el.dataset.rgGuide));
   });
 }
 
@@ -2263,8 +2333,7 @@ const GUIDES = {
         <li>есть активное дело без понятного основания;</li>
         <li>много дел в разных регионах.</li>
       </ul>
-      <p><em>Это короткое описание гайда для прототипа. Полный текст подключается
-      как отдельная страница или PDF в production-версии.</em></p>
+
     `
   },
   bki: {
@@ -2285,7 +2354,6 @@ const GUIDES = {
         <li>долг уступлен коллектору и неясно, кто сейчас актуальный кредитор;</li>
         <li>БКИ и ФССП существенно расходятся.</li>
       </ul>
-      <p><em>Это короткое описание гайда для прототипа.</em></p>
     `
   },
   creditors: {
@@ -2306,7 +2374,6 @@ const GUIDES = {
         <li>общая сумма приближается к 1 млн ₽;</li>
         <li>есть поручительство.</li>
       </ul>
-      <p><em>Это короткое описание гайда для прототипа.</em></p>
     `
   },
   mfc: {
@@ -2329,8 +2396,6 @@ const GUIDES = {
         <li>есть свежие кредиты или сделки за последние 3 года;</li>
         <li>чек-лист готовности из шага 22 не пройден.</li>
       </ul>
-      <p><em>Это короткое описание гайда для прототипа. Полный гайд по подаче
-      в МФЦ — это четвёртый, а не первый шаг самостоятельного маршрута.</em></p>
     `
   }
 };
