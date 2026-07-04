@@ -1883,8 +1883,8 @@ function renderResultContact(result){
   if(!rc){
     rc = document.createElement('div');
     rc.id = 'result-contact';
-    const cta = $('result-cta');
-    cta.parentNode.insertBefore(rc, cta.nextSibling);
+    const anchor = document.getElementById('result-guides') || $('result-body');
+    anchor.parentNode.insertBefore(rc, anchor.nextSibling);
   }
   rc.innerHTML = `
     <details class="result-details" id="contact-details">
@@ -1973,8 +1973,8 @@ function renderResultGuides(result){
   if(!rg){
     rg = document.createElement('div');
     rg.id = 'result-guides';
-    const cta = $('result-cta');
-    cta.parentNode.insertBefore(rg, cta.nextSibling);
+    const body = $('result-body');
+    body.parentNode.insertBefore(rg, body.nextSibling);
   }
   rg.innerHTML = `
     <details class="result-details">
