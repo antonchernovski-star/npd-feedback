@@ -92,6 +92,14 @@
   .option .option-ok{font-size:12px; color:#5b8a3a; margin-top:2px}
   .option input{position:absolute; opacity:0; pointer-events:none}
 
+    /* v0.4.2: адаптивный видеоплеер — десктоп 16:9, мобильные 9:16 */
+  #video-modal .modal{max-width:760px}
+  .video-wrap{position:relative; padding-top:56.25%}
+  @media (max-width:640px){
+    #video-modal .modal{max-width:96vw}
+    .video-wrap{padding-top:177.78%}
+  }
+
   .help-details{margin-top:14px; border:1px solid var(--border);
     border-radius:10px; background:#fafbfd; overflow:hidden}
   .help-details summary{cursor:pointer; padding:10px 14px; font-size:14px;
@@ -575,13 +583,13 @@
 <!-- ========== МОДАЛКА ГАЙДОВ ========== -->
 <!-- ========== МОДАЛКА ВИДЕО-ГАЙДА (v0.4, правка 6) ========== -->
 <div class="modal-overlay" id="video-modal" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:400px">
+  <div class="modal">
     <div class="modal-head">
       <h3 id="video-modal-title">Видео-инструкция</h3>
       <button class="modal-close" type="button" data-close="video-modal">✕</button>
     </div>
     <div class="modal-body">
-      <div style="position:relative; padding-top:177.78%">
+      <div class="video-wrap">
         <iframe id="video-frame" src="" title="Видео-инструкция" frameborder="0"
           allow="clipboard-write; autoplay" allowfullscreen
           style="position:absolute; inset:0; width:100%; height:100%; border-radius:10px"></iframe>
@@ -704,7 +712,10 @@
 const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzHsCUP0Ye66FZ6UHveBs6TLIGgtziwwHy75n3uQOsRFHEuYBK_J62Rb7wFWoG45XDlPQ/exec';
 /* Ссылки на встраиваемые видео RuTube (формат https://rutube.ru/play/embed/ID/).
    Пусто — кнопка видео не показывается. */
-const VIDEO_GUIDES = { fssp:'https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og', bki:'' };
+const VIDEO_GUIDES = {
+  fssp:'https://studio.rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og',
+  bki:'https://studio.rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw'
+};
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
 const LS_KEY = 'npd_quiz_state_v04';
