@@ -108,7 +108,40 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.4.5: sticky-кнопка отправки документов */
+  /* v0.4.6: стартовый экран — оффер и цифры */
+  #screen-start{background:linear-gradient(165deg,#f7faff 0%,#eef3fb 55%,#e9f0fa 100%)}
+  .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
+    color:var(--accent); background:#e3ecfd; border-radius:999px; padding:6px 14px; margin-bottom:12px}
+  .hero-title{font-size:27px; line-height:1.22; margin:0 0 10px; color:var(--text)}
+  .hero-sub{font-size:16px; line-height:1.5; color:#41506a; margin:0 0 16px}
+  .stat-row{display:flex; gap:12px; margin:16px 0 6px; flex-wrap:wrap}
+  .stat{flex:1 1 150px; background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px 16px}
+  .stat b{display:block; font-size:22px; color:var(--accent); line-height:1.1; margin-bottom:4px}
+  .stat span{font-size:12.5px; color:var(--muted); line-height:1.35; display:block}
+  .stat-src{font-size:11.5px; color:#8b96a8; margin:4px 0 12px}
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+  .chip{font-size:13px; color:#3c4a63; background:#fff; border:1px solid var(--border);
+    border-radius:999px; padding:7px 13px}
+  .law-note{margin-top:14px; padding:12px 14px; border:1px solid #e4d9bd; background:#fbf7ec;
+    border-radius:12px; font-size:13px; line-height:1.5; color:#5c4d23}
+  #start-actions{position:sticky; bottom:0; z-index:5;
+    background:linear-gradient(to top,#e9f0fa 72%, rgba(233,240,250,0));
+    padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
+  #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
+
+  /* v0.4.6: бургер-меню */
+  #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
+    background:#fff; cursor:pointer; font-size:18px; color:#3c4a63; line-height:1}
+  #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
+    border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 28px rgba(20,40,80,.14);
+    min-width:230px; padding:6px; display:none}
+  #menu-drop.is-open{display:block}
+  #menu-drop button{display:block; width:100%; text-align:left; background:none; border:none;
+    padding:12px 14px; font-size:14.5px; color:var(--text); cursor:pointer; border-radius:8px}
+  #menu-drop button:hover{background:#f2f6fb}
+  .topbar{position:relative}
+
+  /* v0.4.6: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -133,7 +166,6 @@
   @media (max-width:640px){
     #result-cta{flex-direction:column}
     #result-cta .btn{width:100%}
-    #restart-btn{font-size:12px; padding:6px 10px}
     #result-contact .btn{width:100%}
   }
 
@@ -271,7 +303,13 @@
     <small>Бесплатная предварительная диагностика</small>
   </div>
   <div class="topbar-right">
-    <button class="ghost" id="restart-btn" type="button">Начать заново</button>
+    <button id="menu-btn" type="button" aria-label="Меню">☰</button>
+  </div>
+  <div id="menu-drop">
+    <button type="button" id="menu-restart">↺ Начать диагностику заново</button>
+    <button type="button" id="menu-video-fssp" class="hidden">▶ Видео: проверка ФССП</button>
+    <button type="button" id="menu-video-bki" class="hidden">▶ Видео: отчёты БКИ</button>
+    <button type="button" id="menu-about">Как работает сервис</button>
   </div>
 </div>
 
@@ -279,34 +317,48 @@
 
   <!-- ========== СТАРТОВЫЙ ЭКРАН ========== -->
   <section id="screen-start" class="card">
-    <h1>НАВИГАТОР ПО ДОЛГАМ</h1>
-    <p class="lead">Чтобы понять, как действовать и не сделать хуже.</p>
+    <span class="hero-badge">Бесплатно · 5 минут · анонимно</span>
+    <h1 class="hero-title">Долги давят? Узнайте, какой законный выход подходит именно вам</h1>
+    <p class="hero-sub">Короткая диагностика покажет ваш предварительный маршрут
+      и риски, о которых лучше знать <strong>до</strong> первого шага, — без обещаний
+      и давления.</p>
 
-    <p>Это короткая диагностика для людей с долгами. Она помогает спокойно
-       разобраться в ситуации и понять, какой следующий шаг может быть безопаснее
-       именно в вашем случае.</p>
+    <div class="stat-row">
+      <div class="stat"><b>2,2 млн+</b><span>граждан прошли процедуру банкротства
+        с 2015 года</span></div>
+      <div class="stat"><b>4,2 трлн ₽</b><span>общая сумма долгов граждан
+        в этих процедурах</span></div>
+    </div>
+    <div class="stat-src">По данным Федресурса. Процедура подходит не всем —
+      это и стоит выяснить заранее.</div>
 
-    <p>Мы не обещаем результата и не подталкиваем к процедуре банкротства.
-       Сначала разобраться. Потом выбрать маршрут. Потом действовать.</p>
-
-    <div class="info-box">
-      Займёт около 5 минут. 15 коротких вопросов. Если чего-то не знаете —
-      выбирайте «не знаю», это нормальный ответ.
+    <div class="chip-row">
+      <span class="chip">15 коротких вопросов</span>
+      <span class="chip">«Не знаю» — нормальный ответ</span>
+      <span class="chip">Без звонков без запроса</span>
     </div>
 
-    <div class="info-box" style="background:#f3f5fa; color:var(--text); line-height:1.6">
-      <strong>Как устроен этот шаг.</strong><br>
-      Это бесплатная предварительная диагностика. После результата вы сможете
-      самостоятельно открыть короткий гайд, сохранить результат, чтобы вернуться
-      позже, или передать документы специалисту на проверку.<br><br>
-      Если понадобится помощь, у нас есть платная проверка и сопровождение —
-      но это отдельный, осознанный шаг. Решение всегда остаётся за вами.
-      Мы не обещаем результата и ни к чему не подталкиваем.
+    <details class="help-details" id="about-service">
+      <summary>Как работает сервис</summary>
+      <div class="help-body">
+        <p>Это бесплатная предварительная диагностика. После результата вы сможете
+        самостоятельно открыть короткие гайды и видео, сохранить результат, чтобы
+        вернуться позже, или передать документы специалисту на проверку.</p>
+        <p>Если понадобится помощь, есть платная проверка и сопровождение — но это
+        отдельный, осознанный шаг. Решение всегда остаётся за вами. Мы не обещаем
+        результата и ни к чему не подталкиваем.</p>
+      </div>
+    </details>
+
+    <div class="law-note">
+      Банкротство влечет негативные последствия, в том числе ограничения на получение
+      кредита и повторное банкротство в течение пяти лет. Предварительно обратитесь
+      к своему кредитору и в МФЦ.
     </div>
 
-    <div class="btn-row">
+    <div id="start-actions">
       <button class="btn btn-primary" type="button" data-go="quiz">
-        Пройти короткую диагностику
+        Пройти диагностику бесплатно →
       </button>
     </div>
 
@@ -355,8 +407,7 @@
       <button class="btn btn-outline" type="button" data-go="start">Пройти диагностику заново</button>
     </div>
 
-    <!-- debug-блок удалён в пользовательской сборке -->
-  </section>
+    </section>
 
   <!-- ========== ЭКРАН GREEN SELF-SERVICE ========== -->
   <section id="screen-self-service" class="card hidden">
@@ -1404,7 +1455,31 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-$('restart-btn').addEventListener('click', () => {
+/* v0.4.6: бургер-меню */
+$('menu-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('menu-drop').classList.toggle('is-open');
+});
+document.addEventListener('click', (e) => {
+  if(!$('menu-drop').contains(e.target) && e.target !== $('menu-btn')){
+    $('menu-drop').classList.remove('is-open');
+  }
+});
+$('menu-about').addEventListener('click', () => {
+  $('menu-drop').classList.remove('is-open');
+  showScreen('screen-start');
+  const ab = $('about-service'); if(ab){ ab.open = true; ab.scrollIntoView({behavior:'smooth'}); }
+});
+['fssp','bki'].forEach(key => {
+  const item = $('menu-video-' + key);
+  if(VIDEO_GUIDES[key]){
+    item.classList.remove('hidden');
+    item.addEventListener('click', () => { $('menu-drop').classList.remove('is-open'); openVideoModal(key); });
+  }
+});
+
+$('menu-restart').addEventListener('click', () => {
+  $('menu-drop').classList.remove('is-open');
   if(confirm('Начать диагностику заново? Все ответы будут сброшены.')){
     resetAll();
   }
@@ -1853,7 +1928,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.4.5: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.4.6: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
