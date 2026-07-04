@@ -31,7 +31,8 @@
   .page{max-width:760px; margin:0 auto; padding:24px 20px 64px;}
   .topbar{display:flex; align-items:center; justify-content:space-between;
     padding:14px 20px; background:var(--surface); border-bottom:1px solid var(--border);}
-  .brand{font-weight:600; font-size:15px; letter-spacing:0.2px}
+  .brand{font-weight:600; font-size:15px; letter-spacing:0.6px}
+  .logo-o{width:1.05em; height:1.05em; vertical-align:-0.16em; margin:0 0.02em}
   .brand small{display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:2px}
   .topbar-right{display:flex; gap:8px; align-items:center}
   .ghost{background:transparent; border:1px solid var(--border); color:var(--muted);
@@ -108,7 +109,7 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.4.8: стартовый экран — оффер и цифры */
+  /* v0.5: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     color:var(--accent); background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
@@ -129,7 +130,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.4.8: бургер-меню */
+  /* v0.5: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -141,7 +142,7 @@
   #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.4.8: sticky-кнопка отправки документов */
+  /* v0.5: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -215,6 +216,40 @@
   .result-badge{display:inline-block; padding:4px 10px; background:var(--tag-bg);
     color:var(--muted); font-size:12px; border-radius:99px; margin-bottom:12px;
     letter-spacing:0.2px;}
+
+  /* v0.5: редизайн экрана результата */
+  .verdict{background:linear-gradient(165deg,#fdfbf9,#f5efe9); border:1px solid var(--border);
+    border-radius:14px; padding:18px 18px 16px; margin-bottom:14px}
+  .verdict h2{margin:6px 0 8px; font-size:23px; line-height:1.25}
+  .verdict .lead{margin:0; font-size:14px}
+  .why-list{list-style:none; margin:14px 0 4px; padding:0}
+  .why-list li{position:relative; padding:7px 0 7px 26px; font-size:14.5px; line-height:1.45;
+    border-bottom:1px dashed var(--border)}
+  .why-list li:last-child{border-bottom:none}
+  .why-list li::before{content:''; position:absolute; left:2px; top:13px; width:12px; height:12px;
+    border-radius:50%; background:var(--accent-soft); border:3px solid var(--accent)}
+  .why-title{font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.6px; margin:16px 0 0}
+  .next-card{background:var(--surface); border:2px solid var(--accent); border-radius:14px;
+    padding:16px; margin:16px 0 8px}
+  .next-card .nc-label{font-size:13px; font-weight:700; color:var(--accent);
+    text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px}
+  .next-card p{margin:0 0 12px; font-size:14.5px; line-height:1.45}
+  .next-card .btn{width:100%; min-height:52px; font-size:16px}
+  .sec-actions{display:flex; flex-direction:column; gap:8px; margin:10px 0 4px}
+  .sec-actions .btn{min-height:46px}
+  .btn-save-link{background:none; border:none; color:var(--muted); font-size:14px;
+    text-decoration:underline; cursor:pointer; padding:10px; min-height:44px}
+  .btn-save-link:hover{color:var(--text)}
+  .result-details{margin-top:10px; border:1px solid var(--border); border-radius:12px;
+    background:var(--surface)}
+  .result-details summary{cursor:pointer; padding:13px 16px; font-size:14.5px; font-weight:600;
+    color:var(--text); list-style:none; display:flex; align-items:center; gap:8px; min-height:48px}
+  .result-details summary::-webkit-details-marker{display:none}
+  .result-details summary::after{content:'▾'; margin-left:auto; color:var(--muted);
+    transition:transform .15s}
+  .result-details[open] summary::after{transform:rotate(180deg)}
+  .result-details .rd-body{padding:0 16px 14px}
 
   .cards-grid{display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px}
   .step-card{padding:18px; border:1px solid var(--border); background:#fbf9f7;
@@ -299,7 +334,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">НАВИГАТОР ПО ДОЛГАМ
+  <div class="brand">НАВИГАТОР ПО Д<svg class="logo-o" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M8.6 15.4 L14.6 9.4 M14.6 9.4 h-4.2 M14.6 9.4 v4.2" fill="none" stroke="#C96A3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ЛГАМ
     <small>Бесплатная предварительная диагностика</small>
   </div>
   <div class="topbar-right">
@@ -347,6 +382,11 @@
         <p>Если понадобится помощь, есть платная проверка и сопровождение — но это
         отдельный, осознанный шаг. Решение всегда остаётся за вами. Мы не обещаем
         результата и ни к чему не подталкиваем.</p>
+        <p><strong>Как защищаются данные.</strong> Сама диагностика анонимна: имя,
+        телефон и документы в вопросах не запрашиваются. Контакты нужны, только если
+        вы сами решите сохранить результат или передать документы на проверку, —
+        и используются только с вашего согласия, без передачи третьим лицам
+        без отдельного согласия.</p>
       </div>
     </details>
 
@@ -390,13 +430,17 @@
 
   <!-- ========== ЭКРАН РЕЗУЛЬТАТА ========== -->
   <section id="screen-result" class="card hidden">
-    <span class="result-badge" id="result-badge">Предварительный маршрут</span>
-    <h2 id="result-title">Заголовок результата</h2>
-    <p id="result-subtitle" class="lead">Подзаголовок</p>
+    <div class="verdict">
+      <span class="result-badge" id="result-badge">Предварительный маршрут</span>
+      <h2 id="result-title">Заголовок результата</h2>
+      <p id="result-subtitle" class="lead">Подзаголовок</p>
+    </div>
+
+    <div id="result-why"></div>
+
+    <div id="result-cta"></div>
 
     <div id="result-body"></div>
-
-    <div class="btn-row" id="result-cta"></div>
 
     <div class="disclaimer">
       Материал носит информационный характер и не является юридической консультацией.
@@ -795,7 +839,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.4
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -872,17 +916,6 @@ const LS_KEY = 'npd_quiz_state_v04';
 const LS_SESSION = 'npd_session_id';
 
 const QUESTIONS = [
-  {
-    id:'Q1', type:'single',
-    title:'Готовы рассказать о ваших долгах, доходах и имуществе?',
-    hint:'Чтобы предварительно подобрать маршрут, нужно понять вашу ситуацию.',
-    options:[
-      {v:'A', label:'Да, готов(а) рассказать'},
-      {v:'B', label:'Расскажу часть, что-то пока не готов(а) обсуждать'},
-      {v:'C', label:'Сначала хочу понять, как защищаются мои данные'},
-      {v:'D', label:'Не готов(а) сейчас обсуждать'}
-    ]
-  },
   {
     id:'Q2', type:'single',
     title:'Какая примерная общая сумма всех ваших долгов?',
@@ -1436,10 +1469,6 @@ $('next-btn').addEventListener('click', () => {
   /* v0.4.3: воронка — какой вопрос пройден */
   const cq = currentQuestion();
   if(cq) trackStep(cq.id);
-  if(STATE.currentIndex === 0 && STATE.answers['Q1'] === 'D'){
-    finishQuiz();
-    return;
-  }
   const list = visibleQuestions();
   if(STATE.currentIndex < list.length - 1){
     STATE.currentIndex++;
@@ -1456,7 +1485,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.4.8: бургер-меню */
+/* v0.5: бургер-меню */
 $('menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   $('menu-drop').classList.toggle('is-open');
@@ -1497,7 +1526,7 @@ function resetAll(){
 
 /* ============== ЛОГИКА МАРШРУТИЗАЦИИ ============== */
 /* Приоритет: BFL Better → Risk Check → Yellow → Green → Not Now
-   (мгновенный Not Now для Q1=D — отдельно).
+   (v0.5: Q1 о готовности удалён — решение владельца, см. changelog).
    Внутри Yellow: Yellow A (документы) и Yellow B (подготовка).
    При сомнении — выбираем более осторожный маршрут.
    Логика идентична v0.1, не менялась. */
@@ -1520,14 +1549,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.4.8 (Ю-2): безусловно */
-
-  /* ===== Мгновенный Not Now ===== */
-  if(has('Q1','D')){
-    tags.push('not_ready_to_disclose');
-    reasons.push('Клиент не готов сейчас раскрывать данные.');
-    return finalize('not_now', tags, reasons, ctaShow, guidesShow);
-  }
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5 (Ю-2): безусловно */
 
   /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
   if(has('Q2','A')){
@@ -1620,14 +1642,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.4.8 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.5 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.4.8 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.5 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1648,7 +1670,7 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.4.8 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.5 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1723,7 +1745,7 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Открыть самостоятельный маршрут', go:'self-service' },
     altCta: { label:'Проверить документы перед подачей', go:'upload' },
-    nextStep: { label:'Посмотреть, как это выглядит дальше', go:'self-service' }
+    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   yellow_a: {
     badge: 'Маршрут диагностики',
@@ -1739,7 +1761,7 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Уточнить документы и данные', go:'upload' },
     altCta: { label:'Открыть гайды для уточнения данных', go:'refine-modal' },
-    nextStep: { label:'Посмотреть, как выглядит загрузка документов', go:'upload' }
+    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   yellow_b: {
     badge: 'Маршрут диагностики',
@@ -1865,11 +1887,11 @@ function renderResultContact(result){
     cta.parentNode.insertBefore(rc, cta.nextSibling);
   }
   rc.innerHTML = `
-    <div class="info-box" style="margin-top:18px">
-      <strong>Сохранить этот результат?</strong><br>
-      Можем отправить его вам на почту или в мессенджер — вместе с подходящими
-      гайдами. Это необязательно: результат уже сохранён в этом браузере.
-    </div>
+    <details class="result-details" id="contact-details">
+    <summary>✉️ Отправить результат мне — на почту или в мессенджер</summary>
+    <div class="rd-body">
+    <p class="lead" style="font-size:14px; margin:4px 0 10px">Вместе с подходящими гайдами.
+    Это необязательно: результат уже сохранён в этом браузере. Звонить без запроса не будем.</p>
     <div class="form-row">
       <label for="lead-name">Как к вам обращаться</label>
       <input id="lead-name" type="text" placeholder="Имя">
@@ -1897,6 +1919,8 @@ function renderResultContact(result){
       <button class="btn btn-primary" type="button" id="lead-submit">Отправить мне результат</button>
     </div>
     <div class="hint" id="lead-status" style="margin-top:8px"></div>
+    </div>
+    </details>
   `;
   /* v0.4.4: правильная клавиатура на телефоне под выбранный канал */
   const chSel = document.getElementById('lead-channel');
@@ -1939,7 +1963,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.4.8: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.5: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -1953,7 +1977,9 @@ function renderResultGuides(result){
     cta.parentNode.insertBefore(rg, cta.nextSibling);
   }
   rg.innerHTML = `
-    <h3 style="margin:20px 0 4px">Пока думаете — проверьте основу сами, это бесплатно</h3>
+    <details class="result-details">
+    <summary>▶ Проверьте основу сами — бесплатно, по видео</summary>
+    <div class="rd-body">
     <p class="lead" style="font-size:14px; margin-top:2px">Выгрузка ФССП и кредитные отчёты
     в любом случае понадобятся — и вам, и специалисту.</p>
     <div class="video-preview" data-rg="fssp" role="button" tabindex="0">
@@ -1978,6 +2004,8 @@ function renderResultGuides(result){
     <div class="btn-row" style="margin:6px 0 4px">
       <button class="btn btn-outline" type="button" data-rg-guide="bki">Открыть текстовый гайд БКИ</button>
     </div>
+    </div>
+    </details>
   `;
   rg.querySelectorAll('[data-rg]').forEach(el => {
     const key = el.dataset.rg;
@@ -1997,6 +2025,18 @@ function renderResult(result){
   $('result-title').textContent = c.title;
   $('result-subtitle').textContent = c.subtitle;
   let bodyHtml = c.body;
+
+  /* v0.5: блок «Почему такой вывод» — до 3 причин из ответов клиента */
+  const whyWrap = $('result-why');
+  const whyItems = (result.reasons || []).slice(0, 3);
+  if(whyItems.length){
+    whyWrap.innerHTML = '<div class="why-title">Почему такой вывод</div>' +
+      '<ul class="why-list">' +
+      whyItems.map(r => `<li>${escapeHtml(r)}</li>`).join('') +
+      '</ul>';
+  } else {
+    whyWrap.innerHTML = '';
+  }
 
   /* v0.2.3: блок «Что важно проверить» для Risk Check */
   if(result.route === 'risk_check'){
@@ -2026,31 +2066,47 @@ function renderResult(result){
       </div>`;
   }
 
-  $('result-body').innerHTML = bodyHtml;
+  /* v0.5: длинное описание маршрута — свёрнуто, на экране только суть */
+  $('result-body').innerHTML = `
+    <details class="result-details">
+      <summary>Что это значит — подробнее</summary>
+      <div class="rd-body">${bodyHtml}</div>
+    </details>`;
 
+  /* v0.5: один главный шаг + вторичные действия без дублей */
   const ctaWrap = $('result-cta');
   ctaWrap.innerHTML = '';
 
+  const card = document.createElement('div');
+  card.className = 'next-card';
+  card.innerHTML = '<div class="nc-label">Ваш следующий шаг</div>';
   const primary = document.createElement('button');
   primary.className = 'btn btn-primary';
   primary.type = 'button';
   primary.textContent = c.primaryCta.label;
   primary.addEventListener('click', () => goTo(c.primaryCta.go));
-  ctaWrap.appendChild(primary);
+  card.appendChild(primary);
+  ctaWrap.appendChild(card);
 
-  const alt = document.createElement('button');
-  alt.className = 'btn btn-secondary';
-  alt.type = 'button';
-  alt.textContent = c.altCta.label;
-  alt.addEventListener('click', () => goTo(c.altCta.go));
-  ctaWrap.appendChild(alt);
-
-  const next = document.createElement('button');
-  next.className = 'btn btn-outline';
-  next.type = 'button';
-  next.textContent = c.nextStep.label;
-  next.addEventListener('click', () => goTo(c.nextStep.go));
-  ctaWrap.appendChild(next);
+  const secWrap = document.createElement('div');
+  secWrap.className = 'sec-actions';
+  const seen = new Set([c.primaryCta.go]);
+  [c.altCta, c.nextStep].forEach(cta => {
+    if(!cta || seen.has(cta.go)) return;
+    seen.add(cta.go);
+    const b = document.createElement('button');
+    b.type = 'button';
+    if(cta.go === 'save-modal'){
+      b.className = 'btn-save-link';
+      b.textContent = '💾 ' + cta.label;
+    } else {
+      b.className = 'btn btn-outline';
+      b.textContent = cta.label;
+    }
+    b.addEventListener('click', () => goTo(cta.go));
+    secWrap.appendChild(b);
+  });
+  ctaWrap.appendChild(secWrap);
 
   renderDebug(result, c);
 }
