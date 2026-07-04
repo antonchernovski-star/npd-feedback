@@ -92,7 +92,28 @@
   .option .option-ok{font-size:12px; color:#5b8a3a; margin-top:2px}
   .option input{position:absolute; opacity:0; pointer-events:none}
 
-    /* v0.4.2: адаптивный видеоплеер — десктоп 16:9, мобильные 9:16 */
+    /* v0.4.3: превью видео-гайда — понятная карточка с кнопкой Play */
+  .video-preview{display:flex; align-items:center; gap:14px; margin-top:12px;
+    padding:10px 14px; border:1px solid var(--border); border-radius:14px;
+    background:linear-gradient(135deg,#f2f6fb 0%,#e9eef7 100%); cursor:pointer;
+    transition:box-shadow .15s, transform .15s; user-select:none}
+  .video-preview:hover{box-shadow:0 4px 14px rgba(30,60,120,.12); transform:translateY(-1px)}
+  .video-preview .vp-thumb{position:relative; flex:0 0 auto; width:46px; height:76px;
+    border-radius:9px; background:linear-gradient(160deg,#243043 0%,#141b26 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+  .video-preview .vp-thumb::after{content:''; width:0; height:0; margin-left:3px;
+    border-left:14px solid #fff; border-top:9px solid transparent; border-bottom:9px solid transparent}
+  .video-preview .vp-play{position:absolute; inset:auto; width:26px; height:26px; border-radius:50%;
+    background:var(--accent); opacity:.95; display:none}
+  .video-preview .vp-text{display:flex; flex-direction:column; gap:2px; min-width:0}
+  .video-preview .vp-title{font-weight:600; font-size:14px; color:var(--text)}
+  .video-preview .vp-sub{font-size:12.5px; color:var(--muted); line-height:1.35}
+  .video-preview .vp-badge{margin-left:auto; flex:0 0 auto; font-size:12px; font-weight:600;
+    color:#fff; background:var(--accent); border-radius:999px; padding:6px 12px; white-space:nowrap}
+  @media (max-width:640px){ .video-preview .vp-badge{display:none} }
+
+  /* v0.4.2: адаптивный видеоплеер — десктоп 16:9, мобильные 9:16 */
   #video-modal .modal{max-width:760px}
   .video-wrap{position:relative; padding-top:56.25%}
   @media (max-width:640px){
@@ -308,7 +329,14 @@
            окончены, нет ли активных или новых дел. Это первый и самый важный шаг.</p>
         <div class="btn-row">
           <button class="btn btn-secondary" type="button" data-guide="fssp">Открыть гайд</button>
-          <button class="btn btn-outline hidden" type="button" data-video="fssp">▶ Видео: как проверить с телефона</button>
+          <div class="video-preview hidden" data-video="fssp" role="button" tabindex="0" aria-label="Смотреть видео-гайд по проверке ФССП">
+            <span class="vp-thumb"></span>
+            <span class="vp-text">
+              <span class="vp-title">Видео-гайд: проверка ФССП с телефона</span>
+              <span class="vp-sub">Короткий ролик — повторяйте по шагам прямо на своём телефоне</span>
+            </span>
+            <span class="vp-badge">▶ Смотреть</span>
+          </div>
           <button class="btn btn-outline" type="button" data-go="upload">Загрузить результат на проверку</button>
         </div>
         <div class="step-warn">
@@ -324,7 +352,14 @@
            и помогает заметить уступки коллекторам, ипотеку и поручительства.</p>
         <div class="btn-row">
           <button class="btn btn-outline" type="button" data-guide="bki">Посмотреть в прототипе</button>
-          <button class="btn btn-outline hidden" type="button" data-video="bki">▶ Видео: как получить с телефона</button>
+          <div class="video-preview hidden" data-video="bki" role="button" tabindex="0" aria-label="Смотреть видео-гайд по получению кредитной истории">
+            <span class="vp-thumb"></span>
+            <span class="vp-text">
+              <span class="vp-title">Видео-гайд: как получить кредитную историю</span>
+              <span class="vp-sub">Список бюро через Госуслуги — коротко, с телефона</span>
+            </span>
+            <span class="vp-badge">▶ Смотреть</span>
+          </div>
         </div>
         <div class="step-locked-note">В реальной версии этот шаг лучше проходить после шага 1.</div>
       </div>
@@ -629,9 +664,16 @@
     <button class="close" type="button" id="guide-close" aria-label="Закрыть">×</button>
     <span class="result-badge" id="guide-tag">Гайд</span>
     <h2 id="guide-title"></h2>
+    <div class="video-preview hidden" id="guide-video" role="button" tabindex="0" aria-label="Смотреть видео-гайд">
+      <span class="vp-thumb"></span>
+      <span class="vp-text">
+        <span class="vp-title" id="guide-video-title">Видео-гайд с телефона</span>
+        <span class="vp-sub">Проще один раз увидеть — короткий ролик по шагам</span>
+      </span>
+      <span class="vp-badge">▶ Смотреть</span>
+    </div>
     <div id="guide-body"></div>
     <div class="btn-row" style="margin-top:18px">
-      <button class="btn btn-primary hidden" type="button" id="guide-video">▶ Смотреть видео-гайд</button>
       <button class="btn btn-secondary" type="button" id="guide-upload">Загрузить результат на проверку</button>
       <button class="btn btn-outline" type="button" id="guide-close-2">Закрыть</button>
     </div>
@@ -719,6 +761,7 @@ const VIDEO_GUIDES = {
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
 const LS_KEY = 'npd_quiz_state_v04';
+const LS_SESSION = 'npd_session_id';
 
 const QUESTIONS = [
   {
@@ -927,6 +970,32 @@ const STATE = {
   uploadSelectedTypes:[],
   uploadFiles:{}
 };
+
+/* v0.4.3: воронка — фиксируем каждый шаг, чтобы видеть, где отваливаются люди */
+function getSessionId(){
+  try{
+    let sid = localStorage.getItem(LS_SESSION);
+    if(!sid){
+      sid = 'S-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
+      localStorage.setItem(LS_SESSION, sid);
+    }
+    return sid;
+  }catch(e){ return 'S-nolocal'; }
+}
+function trackStep(step, extra){
+  if(!SUBMIT_URL) return;  // режим имитации — ничего не шлём
+  try{
+    fetch(SUBMIT_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      keepalive: true,
+      body: JSON.stringify({
+        kind:'progress', session_id: getSessionId(), step: step,
+        extra: extra || '', client_ts: new Date().toISOString(), url: location.href
+      })
+    }).catch(()=>{});
+  }catch(e){}
+}
 
 /* v0.4 (правка 5): номер заявки и отправка в Google Sheets */
 function genAppId(){
@@ -1255,6 +1324,9 @@ function updateBackBtn(){
 
 /* ============== НАВИГАЦИЯ КВИЗА ============== */
 $('next-btn').addEventListener('click', () => {
+  /* v0.4.3: воронка — какой вопрос пройден */
+  const cq = currentQuestion();
+  if(cq) trackStep(cq.id);
   if(STATE.currentIndex === 0 && STATE.answers['Q1'] === 'D'){
     finishQuiz();
     return;
@@ -1633,6 +1705,7 @@ function finishQuiz(){
   const result = calcRoute();
   STATE.lastResultRoute = result.route;
   STATE.lastResultMeta = result;
+  trackStep('result', result.route);  /* v0.4.3: воронка */
   renderResult(result);
   renderResultContact(result);
   showScreen('screen-result');
@@ -1835,7 +1908,8 @@ function escapeHtml(s){
 function goTo(target){
   switch(target){
     case 'start':       resetAll(); break;
-    case 'quiz':        STATE.currentIndex = 0; renderQuestion(); showScreen('screen-quiz'); break;
+    case 'quiz':
+      trackStep('quiz_start');        STATE.currentIndex = 0; renderQuestion(); showScreen('screen-quiz'); break;
     case 'result':      showScreen('screen-result'); break;
     case 'self-service':showScreen('screen-self-service'); break;
     case 'upload':
@@ -2213,6 +2287,9 @@ function openGuide(key){
   if(VIDEO_GUIDES[key]){
     gv.classList.remove('hidden');
     gv.dataset.videokey = key;
+    $('guide-video-title').textContent = key === 'fssp'
+      ? 'Видео-гайд: проверка ФССП с телефона'
+      : 'Видео-гайд: как получить кредитную историю';
   } else {
     gv.classList.add('hidden');
   }
