@@ -115,7 +115,7 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.5.4: стартовый экран — оффер и цифры */
+  /* v0.5.5: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     color:#8A4B2D; background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
@@ -136,7 +136,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.5.4: бургер-меню */
+  /* v0.5.5: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -148,7 +148,7 @@
   #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.5.4: sticky-кнопка отправки документов */
+  /* v0.5.5: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -223,7 +223,7 @@
     color:var(--muted); font-size:12px; border-radius:99px; margin-bottom:12px;
     letter-spacing:0.2px;}
 
-  /* v0.5.4: редизайн экрана результата */
+  /* v0.5.5: редизайн экрана результата */
   .verdict{background:linear-gradient(165deg,#fdfbf9,#f5efe9); border:1px solid var(--border);
     border-radius:14px; padding:18px 18px 16px; margin-bottom:14px}
   .verdict h2{margin:6px 0 8px; font-size:23px; line-height:1.25}
@@ -329,12 +329,12 @@
 
   .hidden{display:none !important}
 
-  /* v0.5.4: мягкий переход между вопросами */
+  /* v0.5.5: мягкий переход между вопросами */
   @keyframes qfade{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
   .q-anim{animation:qfade .28s ease}
   @media (prefers-reduced-motion: reduce){ .q-anim{animation:none} }
 
-  /* v0.5.4: стилизация file-инпутов */
+  /* v0.5.5: стилизация file-инпутов */
   input[type="file"]{color:var(--muted)}
   input[type="file"]::file-selector-button{
     background:var(--surface); color:var(--accent-hover); border:1.5px solid var(--accent-hover);
@@ -342,7 +342,7 @@
     margin-right:10px; min-height:42px}
   input[type="file"]::file-selector-button:hover{background:#F6EAE2}
 
-  /* v0.5.4: видимый фокус с клавиатуры */
+  /* v0.5.5: видимый фокус с клавиатуры */
   .btn:focus-visible, .option:focus-within, summary:focus-visible,
   #menu-btn:focus-visible, .brand:focus-visible, .modal-close:focus-visible,
   .btn-save-link:focus-visible, input:focus-visible, select:focus-visible{
@@ -674,6 +674,7 @@
     <div class="btn-row" style="margin-top:14px">
       <button class="btn btn-primary" type="button" data-go="upload">Передать документы на расширенную диагностику</button>
       <button class="btn btn-outline" type="button" data-go="save-modal">Сохранить результат и вернуться позже</button>
+      <button class="btn btn-outline" type="button" data-go="result">← Вернуться к результату</button>
     </div>
 
     <div class="disclaimer">
@@ -695,7 +696,7 @@
     
 
     <div class="btn-row">
-      <button class="btn btn-outline" type="button" data-go="result">← К результату диагностики</button>
+      <button class="btn btn-outline" type="button" data-go="back-from-upload">← Вернуться к моему маршруту</button>
       <button class="btn btn-outline" type="button" data-go="start">Пройти диагностику заново</button>
     </div>
 
@@ -870,7 +871,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.4
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.5
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1238,7 +1239,7 @@ function renderQuestion(){
   if(STATE.currentIndex < 0) STATE.currentIndex = 0;
   const q = list[STATE.currentIndex];
   const total = list.length;
-  /* v0.5.4: endowed progress — бар никогда не пустой */
+  /* v0.5.5: endowed progress — бар никогда не пустой */
   const pct = total > 1 ? Math.max(5, ((STATE.currentIndex)/(total-1))*100) : 5;
   $('progress-fill').style.width = pct + '%';
   const pa = document.getElementById('progress-aria');
@@ -1247,7 +1248,7 @@ function renderQuestion(){
 
   const container = $('question-container');
   container.innerHTML = '';
-  /* v0.5.4: анимация появления вопроса */
+  /* v0.5.5: анимация появления вопроса */
   container.classList.remove('q-anim');
   void container.offsetWidth;
   container.classList.add('q-anim');
@@ -1385,10 +1386,12 @@ function handleOptionClick(q, opt, labelEl){
   if(q.type === 'single'){
     const isRepeat = STATE.answers[q.id] === opt.v;
     STATE.answers[q.id] = opt.v;
-    /* v0.5.4: мягкое автопродвижение для одиночного выбора —
+    /* v0.5.5: мягкое автопродвижение для одиночного выбора —
        450 мс на «передумать», повторный клик по другому варианту сбрасывает таймер */
     clearTimeout(window.__autoAdv);
-    if(!isRepeat){
+    /* v0.5.5: на последнем вопросе финиш — только осознанным нажатием */
+    const isLast = STATE.currentIndex === visibleQuestions().length - 1;
+    if(!isRepeat && !isLast){
       window.__autoAdv = setTimeout(() => {
         const btn = $('next-btn');
         if(btn && !btn.disabled && !$('screen-quiz').classList.contains('hidden')) btn.click();
@@ -1522,7 +1525,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.5.4: лого — возврат на главную (прогресс не сбрасывается) */
+/* v0.5.5: лого — возврат на главную (прогресс не сбрасывается) */
 const goHome = () => { clearTimeout(window.__autoAdv); showScreen('screen-start'); window.scrollTo(0,0); };
 $('brand-home').addEventListener('click', goHome);
 $('brand-home').addEventListener('keydown', (e) => {
@@ -1570,7 +1573,7 @@ function resetAll(){
 
 /* ============== ЛОГИКА МАРШРУТИЗАЦИИ ============== */
 /* Приоритет: BFL Better → Risk Check → Yellow → Green → Not Now
-   (v0.5.4: Q1 о готовности удалён — решение владельца, см. changelog).
+   (v0.5.5: Q1 о готовности удалён — решение владельца, см. changelog).
    Внутри Yellow: Yellow A (документы) и Yellow B (подготовка).
    При сомнении — выбираем более осторожный маршрут.
    Логика идентична v0.1, не менялась. */
@@ -1593,7 +1596,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.4 (Ю-2): безусловно */
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.5 (Ю-2): безусловно */
 
   /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
   if(has('Q2','A')){
@@ -1686,14 +1689,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.4 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.5.5 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.4 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.5.5 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1709,7 +1712,7 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.5.4 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.5.5 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1830,7 +1833,7 @@ const RESULT_CONTENT = {
       долгов или столкнуться с переходом ситуации в судебную процедуру.</p>
     `,
     primaryCta: { label:'Загрузить документы на проверку', go:'upload' },
-    altCta: { label:'Посмотреть, какие документы понадобятся', go:'upload' },
+    altCta: { label:'Посмотреть, какие документы понадобятся', go:'refine-modal' },
     nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   bfl_better: {
@@ -1970,7 +1973,7 @@ function renderResultContact(result){
     else if(v === 'phone' || v === 'whatsapp'){ contactInp.type = 'tel'; contactInp.inputMode = 'tel'; contactInp.placeholder = '+7 ___ ___-__-__'; }
     else { contactInp.type = 'text'; contactInp.inputMode = 'text'; contactInp.placeholder = '@ник в Telegram'; }
   });
-  /* v0.5.4: авто-раскрытие блока отправки, когда клиент доскроллил до него */
+  /* v0.5.5: авто-раскрытие блока отправки, когда клиент доскроллил до него */
   const cd = document.getElementById('contact-details');
   if(cd && 'IntersectionObserver' in window && !cd.dataset.autoOpened){
     const io = new IntersectionObserver((entries) => {
@@ -2016,7 +2019,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.5.4: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.5.5: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -2079,7 +2082,7 @@ function renderResult(result){
   $('result-subtitle').textContent = c.subtitle;
   let bodyHtml = c.body;
 
-  /* v0.5.4: блок «Почему такой вывод» — до 3 причин из ответов клиента */
+  /* v0.5.5: блок «Почему такой вывод» — до 3 причин из ответов клиента */
   const whyWrap = $('result-why');
   const whyItems = (result.reasons || []).slice(0, 3);
   if(whyItems.length){
@@ -2120,15 +2123,15 @@ function renderResult(result){
       </div>`;
   }
 
-  /* v0.5.4: длинное описание маршрута — свёрнуто, на экране только суть */
-  /* v0.5.4: блок под вердиктом, раскрыт по умолчанию (можно свернуть) */
+  /* v0.5.5: длинное описание маршрута — свёрнуто, на экране только суть */
+  /* v0.5.5: блок под вердиктом, раскрыт по умолчанию (можно свернуть) */
   $('result-body').innerHTML = `
     <details class="result-details" open>
       <summary>Что это значит — подробнее</summary>
       <div class="rd-body">${bodyHtml}</div>
     </details>`;
 
-  /* v0.5.4: один главный шаг + вторичные действия без дублей */
+  /* v0.5.5: один главный шаг + вторичные действия без дублей */
   const ctaWrap = $('result-cta');
   ctaWrap.innerHTML = '';
 
@@ -2224,19 +2227,24 @@ function goTo(target){
   switch(target){
     case 'start':       resetAll(); break;
     case 'quiz':
-      /* v0.5.4: если диагностика уже начата — продолжаем с текущего вопроса */
+      /* v0.5.5: если диагностика уже начата — продолжаем с текущего вопроса */
       trackStep('quiz_start');
       if(!Object.keys(STATE.answers).length) STATE.currentIndex = 0;
       renderQuestion(); showScreen('screen-quiz'); break;
     case 'result':      showScreen('screen-result'); break;
     case 'self-service':showScreen('screen-self-service'); break;
-    case 'upload':
-      STATE.uploadOrigin = STATE.lastResultRoute === 'green' ? 'self-service' : 'result';
+    case 'upload': {
+      /* v0.5.5: origin — фактический экран, с которого пришли */
+      const cur = document.querySelector('.page > section:not(.hidden)');
+      STATE.uploadOrigin = cur && cur.id === 'screen-self-service' ? 'self-service'
+        : cur && cur.id === 'screen-not-now-plan' ? 'not-now-plan' : 'result';
       resetUploadForm();
       showScreen('screen-upload');
       break;
+    }
     case 'back-from-upload':
-      showScreen(STATE.uploadOrigin === 'self-service' ? 'screen-self-service' : 'screen-result');
+      showScreen(STATE.uploadOrigin === 'self-service' ? 'screen-self-service'
+        : STATE.uploadOrigin === 'not-now-plan' ? 'screen-not-now-plan' : 'screen-result');
       break;
     /* v0.2.1: альтернативный CTA для Yellow A/B — компактная модалка ФССП+БКИ */
     case 'refine-modal':
