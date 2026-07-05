@@ -32,7 +32,9 @@
   .page{max-width:760px; margin:0 auto; padding:24px 20px 64px;}
   .topbar{display:flex; align-items:center; justify-content:space-between;
     padding:14px 20px; background:var(--surface); border-bottom:1px solid var(--border);}
-  .brand{display:flex; align-items:center; gap:9px}
+  .brand{display:flex; align-items:center; gap:9px; cursor:pointer; user-select:none;
+    border-radius:10px; padding:4px 8px; margin:-4px -8px}
+  .brand:hover{background:#f5efe9}
   .logo-plane{display:flex; width:30px; height:30px; flex:0 0 auto}
   .logo-plane svg{width:100%; height:100%}
   .logo-text{display:flex; flex-direction:column; line-height:1.05}
@@ -113,7 +115,7 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.5.2: стартовый экран — оффер и цифры */
+  /* v0.5.3: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     color:#8A4B2D; background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
@@ -134,7 +136,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.5.2: бургер-меню */
+  /* v0.5.3: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -146,7 +148,7 @@
   #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.5.2: sticky-кнопка отправки документов */
+  /* v0.5.3: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -221,7 +223,7 @@
     color:var(--muted); font-size:12px; border-radius:99px; margin-bottom:12px;
     letter-spacing:0.2px;}
 
-  /* v0.5.2: редизайн экрана результата */
+  /* v0.5.3: редизайн экрана результата */
   .verdict{background:linear-gradient(165deg,#fdfbf9,#f5efe9); border:1px solid var(--border);
     border-radius:14px; padding:18px 18px 16px; margin-bottom:14px}
   .verdict h2{margin:6px 0 8px; font-size:23px; line-height:1.25}
@@ -339,7 +341,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">
+  <div class="brand" id="brand-home" role="button" tabindex="0" aria-label="На главную">
     <span class="logo-plane" aria-hidden="true"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M3 15 L29 3 L14 18 Z" fill="#C96A3B"/><path d="M14 18 L29 3 L19 28 Z" fill="#A0522D"/><path d="M14 18 L14.5 24 L17.5 21.2 Z" fill="#7A3E22"/></svg></span>
     <span class="logo-text"><span class="lt1">НАВИГАТОР</span><span class="lt2">ПО ДОЛГАМ</span></span>
   </div>
@@ -849,7 +851,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.2
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.3
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1217,7 +1219,7 @@ function renderQuestion(){
   if(STATE.currentIndex < 0) STATE.currentIndex = 0;
   const q = list[STATE.currentIndex];
   const total = list.length;
-  /* v0.5.2: endowed progress — бар никогда не пустой */
+  /* v0.5.3: endowed progress — бар никогда не пустой */
   const pct = total > 1 ? Math.max(5, ((STATE.currentIndex)/(total-1))*100) : 5;
   $('progress-fill').style.width = pct + '%';
   $('progress-text').textContent = `Вопрос ${STATE.currentIndex+1} из ~${total}`;
@@ -1358,7 +1360,7 @@ function handleOptionClick(q, opt, labelEl){
   if(q.type === 'single'){
     const isRepeat = STATE.answers[q.id] === opt.v;
     STATE.answers[q.id] = opt.v;
-    /* v0.5.2: мягкое автопродвижение для одиночного выбора —
+    /* v0.5.3: мягкое автопродвижение для одиночного выбора —
        450 мс на «передумать», повторный клик по другому варианту сбрасывает таймер */
     clearTimeout(window.__autoAdv);
     if(!isRepeat){
@@ -1495,7 +1497,14 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.5.2: бургер-меню */
+/* v0.5.3: лого — возврат на главную (прогресс не сбрасывается) */
+const goHome = () => { clearTimeout(window.__autoAdv); showScreen('screen-start'); window.scrollTo(0,0); };
+$('brand-home').addEventListener('click', goHome);
+$('brand-home').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goHome(); }
+});
+
+/* бургер-меню */
 $('menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   $('menu-drop').classList.toggle('is-open');
@@ -1536,7 +1545,7 @@ function resetAll(){
 
 /* ============== ЛОГИКА МАРШРУТИЗАЦИИ ============== */
 /* Приоритет: BFL Better → Risk Check → Yellow → Green → Not Now
-   (v0.5.2: Q1 о готовности удалён — решение владельца, см. changelog).
+   (v0.5.3: Q1 о готовности удалён — решение владельца, см. changelog).
    Внутри Yellow: Yellow A (документы) и Yellow B (подготовка).
    При сомнении — выбираем более осторожный маршрут.
    Логика идентична v0.1, не менялась. */
@@ -1559,7 +1568,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.2 (Ю-2): безусловно */
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.3 (Ю-2): безусловно */
 
   /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
   if(has('Q2','A')){
@@ -1652,14 +1661,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.2 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.5.3 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.2 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.5.3 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1675,7 +1684,7 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.5.2 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.5.3 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1936,7 +1945,7 @@ function renderResultContact(result){
     else if(v === 'phone' || v === 'whatsapp'){ contactInp.type = 'tel'; contactInp.inputMode = 'tel'; contactInp.placeholder = '+7 ___ ___-__-__'; }
     else { contactInp.type = 'text'; contactInp.inputMode = 'text'; contactInp.placeholder = '@ник в Telegram'; }
   });
-  /* v0.5.2: авто-раскрытие блока отправки, когда клиент доскроллил до него */
+  /* v0.5.3: авто-раскрытие блока отправки, когда клиент доскроллил до него */
   const cd = document.getElementById('contact-details');
   if(cd && 'IntersectionObserver' in window && !cd.dataset.autoOpened){
     const io = new IntersectionObserver((entries) => {
@@ -1982,7 +1991,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.5.2: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.5.3: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -2045,7 +2054,7 @@ function renderResult(result){
   $('result-subtitle').textContent = c.subtitle;
   let bodyHtml = c.body;
 
-  /* v0.5.2: блок «Почему такой вывод» — до 3 причин из ответов клиента */
+  /* v0.5.3: блок «Почему такой вывод» — до 3 причин из ответов клиента */
   const whyWrap = $('result-why');
   const whyItems = (result.reasons || []).slice(0, 3);
   if(whyItems.length){
@@ -2086,14 +2095,14 @@ function renderResult(result){
       </div>`;
   }
 
-  /* v0.5.2: длинное описание маршрута — свёрнуто, на экране только суть */
+  /* v0.5.3: длинное описание маршрута — свёрнуто, на экране только суть */
   $('result-body').innerHTML = `
     <details class="result-details">
       <summary>Что это значит — подробнее</summary>
       <div class="rd-body">${bodyHtml}</div>
     </details>`;
 
-  /* v0.5.2: один главный шаг + вторичные действия без дублей */
+  /* v0.5.3: один главный шаг + вторичные действия без дублей */
   const ctaWrap = $('result-cta');
   ctaWrap.innerHTML = '';
 
