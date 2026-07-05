@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>НАВИГАТОР ПО ДОЛГАМ — предварительная диагностика</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%2015%20L29%203%20L14%2018%20Z%22%20fill%3D%22%23C96A3B%22/%3E%3Cpath%20d%3D%22M14%2018%20L29%203%20L19%2028%20Z%22%20fill%3D%22%23A0522D%22/%3E%3Cpath%20d%3D%22M14%2018%20L14.5%2024%20L17.5%2021.2%20Z%22%20fill%3D%22%237A3E22%22/%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#F7F5F3;
@@ -31,9 +32,12 @@
   .page{max-width:760px; margin:0 auto; padding:24px 20px 64px;}
   .topbar{display:flex; align-items:center; justify-content:space-between;
     padding:14px 20px; background:var(--surface); border-bottom:1px solid var(--border);}
-  .brand{font-weight:600; font-size:15px; letter-spacing:0.6px}
-  .logo-o{width:1.05em; height:1.05em; vertical-align:-0.16em; margin:0 0.02em}
-  .brand small{display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:2px}
+  .brand{display:flex; align-items:center; gap:9px}
+  .logo-plane{display:flex; width:30px; height:30px; flex:0 0 auto}
+  .logo-plane svg{width:100%; height:100%}
+  .logo-text{display:flex; flex-direction:column; line-height:1.05}
+  .lt1{font-weight:800; font-size:15px; letter-spacing:1px; color:#3d2f26}
+  .lt2{font-weight:800; font-size:12.5px; letter-spacing:2.4px; color:var(--accent)}
   .topbar-right{display:flex; gap:8px; align-items:center}
   .ghost{background:transparent; border:1px solid var(--border); color:var(--muted);
     padding:8px 12px; border-radius:10px; cursor:pointer; font-size:13px}
@@ -109,10 +113,10 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.5: стартовый экран — оффер и цифры */
+  /* v0.5.1: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
-    color:var(--accent); background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
+    color:#8A4B2D; background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
   .hero-title{font-size:27px; line-height:1.22; margin:0 0 10px; color:var(--text)}
   .hero-sub{font-size:16px; line-height:1.5; color:#55504a; margin:0 0 16px}
   .stat-row{display:flex; gap:12px; margin:16px 0 6px; flex-wrap:wrap}
@@ -130,7 +134,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.5: бургер-меню */
+  /* v0.5.1: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -142,7 +146,7 @@
   #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.5: sticky-кнопка отправки документов */
+  /* v0.5.1: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -204,8 +208,8 @@
   .help-details summary{cursor:pointer; padding:10px 14px; font-size:14px;
     color:var(--accent); list-style:none; user-select:none; font-weight:500}
   .help-details summary::-webkit-details-marker{display:none}
-  .help-details summary::before{content:'ℹ️ '; margin-right:4px}
-  .help-details[open] summary::before{content:'ℹ️ '}
+  .help-details summary::before{content:'ⓘ '; margin-right:4px; color:var(--accent); font-weight:700}
+  .help-details[open] summary::before{content:'ⓘ '}
   .help-details .help-body{padding:0 14px 12px; font-size:14px; color:var(--text); line-height:1.55}
   .help-details .help-body p{margin:6px 0}
 
@@ -217,7 +221,7 @@
     color:var(--muted); font-size:12px; border-radius:99px; margin-bottom:12px;
     letter-spacing:0.2px;}
 
-  /* v0.5: редизайн экрана результата */
+  /* v0.5.1: редизайн экрана результата */
   .verdict{background:linear-gradient(165deg,#fdfbf9,#f5efe9); border:1px solid var(--border);
     border-radius:14px; padding:18px 18px 16px; margin-bottom:14px}
   .verdict h2{margin:6px 0 8px; font-size:23px; line-height:1.25}
@@ -297,7 +301,8 @@
   .doc-summary.is-empty{background:#f2ede7; color:var(--muted)}
 
   .info-box{margin:14px 0; padding:14px 16px; background:#F6EAE2;
-    border-radius:10px; font-size:14px; color:var(--accent); line-height:1.55}
+    border-radius:10px; font-size:14px; color:#5A4636; line-height:1.55}
+  .info-box strong{color:#8A4B2D}
 
   .debug{margin-top:24px; background:#fffaf0; border:1px solid #f0d68a;
     border-radius:12px; padding:0;}
@@ -334,8 +339,9 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">НАВИГАТОР ПО Д<svg class="logo-o" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M8.6 15.4 L14.6 9.4 M14.6 9.4 h-4.2 M14.6 9.4 v4.2" fill="none" stroke="#C96A3B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ЛГАМ
-    <small>Бесплатная предварительная диагностика</small>
+  <div class="brand">
+    <span class="logo-plane" aria-hidden="true"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M3 15 L29 3 L14 18 Z" fill="#C96A3B"/><path d="M14 18 L29 3 L19 28 Z" fill="#A0522D"/><path d="M14 18 L14.5 24 L17.5 21.2 Z" fill="#7A3E22"/></svg></span>
+    <span class="logo-text"><span class="lt1">НАВИГАТОР</span><span class="lt2">ПО ДОЛГАМ</span></span>
   </div>
   <div class="topbar-right">
     <button id="menu-btn" type="button" aria-label="Меню">☰</button>
@@ -368,7 +374,7 @@
       это и стоит выяснить заранее.</div>
 
     <div class="chip-row">
-      <span class="chip">Около 15 коротких вопросов</span>
+      <span class="chip">Около 12 коротких вопросов</span>
       <span class="chip">«Не знаю» — нормальный ответ</span>
       <span class="chip">Без звонков без запроса</span>
     </div>
@@ -839,7 +845,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.1
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1086,18 +1092,6 @@ const QUESTIONS = [
       {v:'C', label:'Был кредит, по нему не было платежей'},
       {v:'D', label:'Были несколько микрозаймов подряд незадолго до проблем'},
       {v:'E', label:'Не помню точно', okHint:'Это нормальный ответ'}
-    ]
-  },
-  {
-    id:'Q19', type:'single',
-    title:'На каком вы этапе в принятии решения?',
-    hint:'Часть наших шагов бесплатна — диагностика, гайды, чек-листы. Часть платная — юридическая проверка и сопровождение.',
-    options:[
-      {v:'A', label:'Готов(а) обсуждать стоимость, если предварительный маршрут подойдёт'},
-      {v:'B', label:'Сначала хочу понять маршрут, потом думать про оплату'},
-      {v:'C', label:'Сейчас не могу оплачивать платные услуги, ищу бесплатные варианты'},
-      {v:'D', label:'Сейчас просто изучаю тему, оплату не рассматриваю'},
-      {v:'E', label:'Не готов(а) обсуждать сейчас'}
     ]
   }
 ];
@@ -1485,7 +1479,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.5: бургер-меню */
+/* v0.5.1: бургер-меню */
 $('menu-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   $('menu-drop').classList.toggle('is-open');
@@ -1526,7 +1520,7 @@ function resetAll(){
 
 /* ============== ЛОГИКА МАРШРУТИЗАЦИИ ============== */
 /* Приоритет: BFL Better → Risk Check → Yellow → Green → Not Now
-   (v0.5: Q1 о готовности удалён — решение владельца, см. changelog).
+   (v0.5.1: Q1 о готовности удалён — решение владельца, см. changelog).
    Внутри Yellow: Yellow A (документы) и Yellow B (подготовка).
    При сомнении — выбираем более осторожный маршрут.
    Логика идентична v0.1, не менялась. */
@@ -1549,7 +1543,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5 (Ю-2): безусловно */
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.1 (Ю-2): безусловно */
 
   /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
   if(has('Q2','A')){
@@ -1642,14 +1636,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.5.1 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.5.1 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1663,14 +1657,9 @@ function calcRoute(){
     reasons.push('Нет основания для банкротства через МФЦ и нет просрочек — банкротство сейчас может быть преждевременным.');
     return finalize('not_now', tags, reasons, ctaShow, guidesShow);
   }
-  if(has('Q19','D') && has('Q9','A')){
-    tags.push('research_stage'); tags.push('no_overdue');
-    reasons.push('Стадия изучения темы и нет просрочек — банкротство сейчас не нужно.');
-    return finalize('not_now', tags, reasons, ctaShow, guidesShow);
-  }
 
   /* ===== Yellow ===== */
-  /* v0.5 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.5.1 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1963,7 +1952,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.5: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.5.1: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -2026,7 +2015,7 @@ function renderResult(result){
   $('result-subtitle').textContent = c.subtitle;
   let bodyHtml = c.body;
 
-  /* v0.5: блок «Почему такой вывод» — до 3 причин из ответов клиента */
+  /* v0.5.1: блок «Почему такой вывод» — до 3 причин из ответов клиента */
   const whyWrap = $('result-why');
   const whyItems = (result.reasons || []).slice(0, 3);
   if(whyItems.length){
@@ -2040,7 +2029,8 @@ function renderResult(result){
 
   /* v0.2.3: блок «Что важно проверить» для Risk Check */
   if(result.route === 'risk_check'){
-    const explanation = getMainRiskExplanation(result.tags);
+    let explanation = getMainRiskExplanation(result.tags);
+    explanation = explanation.charAt(0).toUpperCase() + explanation.slice(1);
     bodyHtml += `
       <div class="info-box" style="background:#fff8e6; color:#7a5a10">
         <strong>Что важно проверить.</strong><br>
@@ -2066,14 +2056,14 @@ function renderResult(result){
       </div>`;
   }
 
-  /* v0.5: длинное описание маршрута — свёрнуто, на экране только суть */
+  /* v0.5.1: длинное описание маршрута — свёрнуто, на экране только суть */
   $('result-body').innerHTML = `
     <details class="result-details">
       <summary>Что это значит — подробнее</summary>
       <div class="rd-body">${bodyHtml}</div>
     </details>`;
 
-  /* v0.5: один главный шаг + вторичные действия без дублей */
+  /* v0.5.1: один главный шаг + вторичные действия без дублей */
   const ctaWrap = $('result-cta');
   ctaWrap.innerHTML = '';
 
