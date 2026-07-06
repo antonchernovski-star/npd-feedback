@@ -115,7 +115,7 @@
   .consent-row input[type=checkbox]{width:20px; height:20px; flex:0 0 auto}
   .consent-row{padding:6px 0; cursor:pointer}
 
-  /* v0.5.6: стартовый экран — оффер и цифры */
+  /* v0.6: стартовый экран — оффер и цифры */
   #screen-start{background:linear-gradient(165deg,#fdfbf9 0%,#f5efe9 55%,#f1e9e1 100%)}
   .hero-badge{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     color:#8A4B2D; background:#F6EAE2; border-radius:999px; padding:6px 14px; margin-bottom:12px}
@@ -136,7 +136,7 @@
     padding:14px 0 max(10px, env(safe-area-inset-bottom)); margin-top:10px}
   #start-actions .btn{width:100%; min-height:54px; font-size:17px; font-weight:600}
 
-  /* v0.5.6: бургер-меню */
+  /* v0.6: бургер-меню */
   #menu-btn{width:44px; height:44px; border:1px solid var(--border); border-radius:10px;
     background:#fff; cursor:pointer; font-size:18px; color:#55504a; line-height:1}
   #menu-drop{position:absolute; right:14px; top:56px; z-index:50; background:#fff;
@@ -148,7 +148,7 @@
   #menu-drop button:hover{background:#f5efe9}
   .topbar{position:relative}
 
-  /* v0.5.6: sticky-кнопка отправки документов */
+  /* v0.6: sticky-кнопка отправки документов */
   #upload-actions{position:sticky; bottom:0; z-index:5;
     background:linear-gradient(to top, #fff 72%, rgba(255,255,255,0));
     padding:14px 0 max(10px, env(safe-area-inset-bottom))}
@@ -223,7 +223,7 @@
     color:var(--muted); font-size:12px; border-radius:99px; margin-bottom:12px;
     letter-spacing:0.2px;}
 
-  /* v0.5.6: редизайн экрана результата */
+  /* v0.6: редизайн экрана результата */
   .verdict{background:linear-gradient(165deg,#fdfbf9,#f5efe9); border:1px solid var(--border);
     border-radius:14px; padding:18px 18px 16px; margin-bottom:14px}
   .verdict h2{margin:6px 0 8px; font-size:23px; line-height:1.25}
@@ -339,12 +339,12 @@
 
   .hidden{display:none !important}
 
-  /* v0.5.6: мягкий переход между вопросами */
+  /* v0.6: мягкий переход между вопросами */
   @keyframes qfade{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
   .q-anim{animation:qfade .28s ease}
   @media (prefers-reduced-motion: reduce){ .q-anim{animation:none} }
 
-  /* v0.5.6: стилизация file-инпутов */
+  /* v0.6: стилизация file-инпутов */
   input[type="file"]{color:var(--muted)}
   input[type="file"]::file-selector-button{
     background:var(--surface); color:var(--accent-hover); border:1.5px solid var(--accent-hover);
@@ -352,7 +352,7 @@
     margin-right:10px; min-height:42px}
   input[type="file"]::file-selector-button:hover{background:#F6EAE2}
 
-  /* v0.5.6: видимый фокус с клавиатуры */
+  /* v0.6: видимый фокус с клавиатуры */
   .btn:focus-visible, .option:focus-within, summary:focus-visible,
   #menu-btn:focus-visible, .brand:focus-visible, .modal-close:focus-visible,
   .btn-save-link:focus-visible, input:focus-visible, select:focus-visible{
@@ -887,7 +887,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.5.6
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -954,6 +954,9 @@
 const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzHsCUP0Ye66FZ6UHveBs6TLIGgtziwwHy75n3uQOsRFHEuYBK_J62Rb7wFWoG45XDlPQ/exec';
 /* Ссылки на встраиваемые видео RuTube (формат https://rutube.ru/play/embed/ID/).
    Пусто — кнопка видео не показывается. */
+/* v0.6: username Telegram-бота без @ (пусто — кнопка Telegram скрыта) */
+const TG_BOT = '';
+
 const VIDEO_GUIDES = {
   fssp:'https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og',
   bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw'
@@ -1255,7 +1258,7 @@ function renderQuestion(){
   if(STATE.currentIndex < 0) STATE.currentIndex = 0;
   const q = list[STATE.currentIndex];
   const total = list.length;
-  /* v0.5.6: endowed progress — бар никогда не пустой */
+  /* v0.6: endowed progress — бар никогда не пустой */
   const pct = total > 1 ? Math.max(5, ((STATE.currentIndex)/(total-1))*100) : 5;
   $('progress-fill').style.width = pct + '%';
   const pa = document.getElementById('progress-aria');
@@ -1264,7 +1267,7 @@ function renderQuestion(){
 
   const container = $('question-container');
   container.innerHTML = '';
-  /* v0.5.6: анимация появления вопроса */
+  /* v0.6: анимация появления вопроса */
   container.classList.remove('q-anim');
   void container.offsetWidth;
   container.classList.add('q-anim');
@@ -1402,10 +1405,10 @@ function handleOptionClick(q, opt, labelEl){
   if(q.type === 'single'){
     const isRepeat = STATE.answers[q.id] === opt.v;
     STATE.answers[q.id] = opt.v;
-    /* v0.5.6: мягкое автопродвижение для одиночного выбора —
+    /* v0.6: мягкое автопродвижение для одиночного выбора —
        450 мс на «передумать», повторный клик по другому варианту сбрасывает таймер */
     clearTimeout(window.__autoAdv);
-    /* v0.5.6: на последнем вопросе финиш — только осознанным нажатием */
+    /* v0.6: на последнем вопросе финиш — только осознанным нажатием */
     const isLast = STATE.currentIndex === visibleQuestions().length - 1;
     if(!isRepeat && !isLast){
       window.__autoAdv = setTimeout(() => {
@@ -1541,7 +1544,7 @@ $('back-btn').addEventListener('click', () => {
   }
 });
 
-/* v0.5.6: отметки «шаг выполнен» на самостоятельном маршруте */
+/* v0.6: отметки «шаг выполнен» на самостоятельном маршруте */
 STATE.doneSteps = STATE.doneSteps || {};
 try{
   const _ls = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
@@ -1615,7 +1618,7 @@ function resetAll(){
 
 /* ============== ЛОГИКА МАРШРУТИЗАЦИИ ============== */
 /* Приоритет: BFL Better → Risk Check → Yellow → Green → Not Now
-   (v0.5.6: Q1 о готовности удалён — решение владельца, см. changelog).
+   (v0.6: Q1 о готовности удалён — решение владельца, см. changelog).
    Внутри Yellow: Yellow A (документы) и Yellow B (подготовка).
    При сомнении — выбираем более осторожный маршрут.
    Логика идентична v0.1, не менялась. */
@@ -1638,7 +1641,7 @@ function calcRoute(){
      основанию видна, даже если маршрут срабатывает по более раннему правилу */
   if(multiHas('Q7','A') && ['D','E','F','G'].includes(A['Q10'])) tags.push('pension_basis_check');
   if(multiHas('Q7','B') && ['C','D','E','F','G'].includes(A['Q10'])) tags.push('child_benefit_basis_check');
-  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.5.6 (Ю-2): безусловно */
+  if(multiHas('Q7','C')) tags.push('svo_basis_check'); /* v0.6 (Ю-2): безусловно */
 
   /* ===== Микродолг: целесообразность раньше риска (v0.3, П-5 анкеты v1.9) ===== */
   if(has('Q2','A')){
@@ -1731,14 +1734,14 @@ function calcRoute(){
     reasons.push('Пенсионер и есть зарплата — основание нужно проверить отдельно.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.6 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
+  /* v0.6 (Ю-2, подтверждено юристом): основание СВО — всегда юрпроверка,
      доход не является условием. Основание новое, устойчивой практики мало. */
   if(multiHas('Q7','C')){
     tags.push('svo_basis_check');
     reasons.push('Статус участника СВО — отдельное основание для МФЦ, но по нему пока мало практики. Такое основание мы проверяем с юристом индивидуально.');
     return finalize('risk_check', tags, reasons, ctaShow, guidesShow);
   }
-  /* v0.5.6 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
+  /* v0.6 (Ю-5): завершение < 5 лет или начатая и прекращённая процедура —
      повторное ВБФЛ не раньше 5 лет со дня завершения/прекращения (по ЕФРСБ) */
   if(has('Q6a','C') || has('Q6a','E')){
     tags.push('repeat_bankruptcy_check');
@@ -1754,7 +1757,7 @@ function calcRoute(){
   }
 
   /* ===== Yellow ===== */
-  /* v0.5.6 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
+  /* v0.6 (Ю-5): заявление вернули из МФЦ — не запрет, а подготовка:
      повторная подача возможна через месяц, но причину возврата нужно устранить */
   if(has('Q6a','D')){
     tags.push('mfc_return_history');
@@ -1978,21 +1981,15 @@ function renderResultContact(result){
     Это необязательно: результат уже сохранён в этом браузере. Звонить без запроса не будем.</p>
     <div class="form-row">
       <label for="lead-name">Как к вам обращаться</label>
-      <input id="lead-name" type="text" placeholder="Имя">
+      <input id="lead-name" type="text" placeholder="Имя" autocomplete="name">
     </div>
     <div class="form-row">
-      <label for="lead-channel">Куда отправить</label>
-      <select id="lead-channel">
-        <option value="">— выберите канал —</option>
-        <option value="phone">Телефон (позвоните мне)</option>
-        <option value="whatsapp">WhatsApp</option>
-        <option value="telegram">Telegram</option>
-        <option value="email">Электронная почта</option>
-      </select>
+      <label for="lead-phone">Телефон</label>
+      <input id="lead-phone" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel">
     </div>
     <div class="form-row">
-      <label for="lead-contact">Номер или адрес</label>
-      <input id="lead-contact" type="text" placeholder="+7 ___ ___-__-__ / @ник / почта">
+      <label for="lead-email">Электронная почта — на неё придёт результат</label>
+      <input id="lead-email" type="email" inputmode="email" placeholder="name@example.ru" autocomplete="email">
     </div>
     <label class="consent-row" style="display:flex; gap:8px; align-items:flex-start; font-size:13px; margin:8px 0">
       <input type="checkbox" id="lead-consent" style="margin-top:3px">
@@ -2006,16 +2003,22 @@ function renderResultContact(result){
     </div>
     </details>
   `;
-  /* v0.4.4: правильная клавиатура на телефоне под выбранный канал */
-  const chSel = document.getElementById('lead-channel');
-  const contactInp = document.getElementById('lead-contact');
-  chSel.addEventListener('change', () => {
-    const v = chSel.value;
-    if(v === 'email'){ contactInp.type = 'email'; contactInp.inputMode = 'email'; contactInp.placeholder = 'name@example.ru'; }
-    else if(v === 'phone' || v === 'whatsapp'){ contactInp.type = 'tel'; contactInp.inputMode = 'tel'; contactInp.placeholder = '+7 ___ ___-__-__'; }
-    else { contactInp.type = 'text'; contactInp.inputMode = 'text'; contactInp.placeholder = '@ник в Telegram'; }
+  /* v0.6: маска телефона +7 (999) 123-45-67 */
+  const phoneInp = document.getElementById('lead-phone');
+  phoneInp.addEventListener('input', () => {
+    let d = phoneInp.value.replace(/\D/g, '');
+    if(d.startsWith('8')) d = '7' + d.slice(1);
+    if(d && !d.startsWith('7')) d = '7' + d;
+    d = d.slice(0, 11);
+    let out = '';
+    if(d.length > 0) out = '+7';
+    if(d.length > 1) out += ' (' + d.slice(1, 4);
+    if(d.length >= 4) out += ') ' + d.slice(4, 7);
+    if(d.length >= 7) out += '-' + d.slice(7, 9);
+    if(d.length >= 9) out += '-' + d.slice(9, 11);
+    phoneInp.value = out;
   });
-  /* v0.5.6: авто-раскрытие блока отправки, когда клиент доскроллил до него */
+  /* v0.6: авто-раскрытие блока отправки, когда клиент доскроллил до него */
   const cd = document.getElementById('contact-details');
   if(cd && 'IntersectionObserver' in window && !cd.dataset.autoOpened){
     const io = new IntersectionObserver((entries) => {
@@ -2031,27 +2034,38 @@ function renderResultContact(result){
   }
   document.getElementById('lead-submit').addEventListener('click', async () => {
     const name = document.getElementById('lead-name').value.trim();
-    const channel = document.getElementById('lead-channel').value;
-    const contact = document.getElementById('lead-contact').value.trim();
+    const phone = document.getElementById('lead-phone').value.trim();
+    const email = document.getElementById('lead-email').value.trim();
     const consent = document.getElementById('lead-consent').checked;
     const st = document.getElementById('lead-status');
-    if(!channel || !contact){ st.textContent = 'Выберите канал и укажите контакт.'; return; }
+    const phoneDigits = phone.replace(/\D/g, '');
+    if(phoneDigits.length !== 11){ st.textContent = 'Укажите телефон полностью: +7 и 10 цифр.'; return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ st.textContent = 'Проверьте адрес почты — на неё придёт результат.'; return; }
     if(!consent){ st.textContent = 'Нужна отметка согласия — без неё мы не можем сохранить контакт.'; return; }
     st.textContent = 'Отправляем…';
     const appId = genAppId();
+    const saveLink = location.origin + location.pathname + '#s=' + encodeState();
     try{
       const r = await submitToSheet(Object.assign({
         kind:'lead', app_id: appId, client_ts: new Date().toISOString(),
-        name, channel, contact, consent: true
+        name, phone, email, channel:'phone+email', contact: phone,
+        save_link: saveLink, consent: true
       }, collectMeta()));
       if(r.status === 'ok' || r.status === 'simulated'){
+        const tgBtn = TG_BOT
+          ? `<a class="btn btn-primary" style="display:block; text-align:center; margin-top:12px; min-height:52px; line-height:1.3; padding-top:14px"
+               href="https://t.me/${TG_BOT}?start=${encodeURIComponent(appId)}" target="_blank" rel="noopener noreferrer"
+               onclick="trackStep('tg_bot_click')">➤ Продолжить в Telegram — результат и шаги в боте</a>
+             <div class="hint" style="margin-top:6px">Бот пришлёт результат и будет напоминать о шагах.
+             Переходя в Telegram, вы соглашаетесь получить сообщение от бота. Если Telegram нет — всё уже в письме.</div>`
+          : '';
         rc.innerHTML = `
           <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
             <strong>Заявка ${appId} принята.</strong><br>
             ${r.status === 'simulated'
               ? 'Демо-режим: данные никуда не отправлены.'
-              : 'Мы отправим результат на указанный канал — обычно в течение рабочего дня. Звонить без запроса не будем. Пока ждёте, можно проверить себя в ФССП — это понадобится при любом маршруте.'}
-          </div>`;
+              : 'Письмо с результатом уже отправлено на вашу почту — если его не видно, проверьте папку «Спам». Специалист свяжется по телефону или почте — обычно в течение рабочего дня. Звонить без запроса не будем.'}
+          </div>` + tgBtn;
       } else {
         st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.';
       }
@@ -2061,7 +2075,7 @@ function renderResultContact(result){
   });
 }
 
-/* v0.5.6: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
+/* v0.6: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
    (в Green они уже встроены в самостоятельный маршрут).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
@@ -2124,7 +2138,7 @@ function renderResult(result){
   $('result-subtitle').textContent = c.subtitle;
   let bodyHtml = c.body;
 
-  /* v0.5.6: блок «Почему такой вывод» — до 3 причин из ответов клиента */
+  /* v0.6: блок «Почему такой вывод» — до 3 причин из ответов клиента */
   const whyWrap = $('result-why');
   const whyItems = (result.reasons || []).slice(0, 3);
   if(whyItems.length){
@@ -2165,15 +2179,15 @@ function renderResult(result){
       </div>`;
   }
 
-  /* v0.5.6: длинное описание маршрута — свёрнуто, на экране только суть */
-  /* v0.5.6: блок под вердиктом, раскрыт по умолчанию (можно свернуть) */
+  /* v0.6: длинное описание маршрута — свёрнуто, на экране только суть */
+  /* v0.6: блок под вердиктом, раскрыт по умолчанию (можно свернуть) */
   $('result-body').innerHTML = `
     <details class="result-details" open>
       <summary>Что это значит — подробнее</summary>
       <div class="rd-body">${bodyHtml}</div>
     </details>`;
 
-  /* v0.5.6: один главный шаг + вторичные действия без дублей */
+  /* v0.6: один главный шаг + вторичные действия без дублей */
   const ctaWrap = $('result-cta');
   ctaWrap.innerHTML = '';
 
@@ -2269,14 +2283,14 @@ function goTo(target){
   switch(target){
     case 'start':       resetAll(); break;
     case 'quiz':
-      /* v0.5.6: если диагностика уже начата — продолжаем с текущего вопроса */
+      /* v0.6: если диагностика уже начата — продолжаем с текущего вопроса */
       trackStep('quiz_start');
       if(!Object.keys(STATE.answers).length) STATE.currentIndex = 0;
       renderQuestion(); showScreen('screen-quiz'); break;
     case 'result':      showScreen('screen-result'); break;
     case 'self-service':showScreen('screen-self-service'); break;
     case 'upload': {
-      /* v0.5.6: origin — фактический экран, с которого пришли */
+      /* v0.6: origin — фактический экран, с которого пришли */
       const cur = document.querySelector('.page > section:not(.hidden)');
       STATE.uploadOrigin = cur && cur.id === 'screen-self-service' ? 'self-service'
         : cur && cur.id === 'screen-not-now-plan' ? 'not-now-plan' : 'result';
