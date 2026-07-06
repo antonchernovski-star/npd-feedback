@@ -494,7 +494,8 @@
       <button class="btn btn-outline" type="button" data-go="start">Пройти диагностику заново</button>
     </div>
 
-    </section>
+    
+  </section>
 
   <!-- ========== ЭКРАН GREEN SELF-SERVICE ========== -->
   <section id="screen-self-service" class="card hidden">
@@ -893,7 +894,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.3
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -961,7 +962,7 @@ const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzHsCUP0Ye66FZ6UHveB
 /* Ссылки на встраиваемые видео RuTube (формат https://rutube.ru/play/embed/ID/).
    Пусто — кнопка видео не показывается. */
 /* v0.6: username Telegram-бота без @ (пусто — кнопка Telegram скрыта) */
-const TG_BOT = 'navigatorpodolgambot';
+const TG_BOT = 'npd_service_bot'; // v0.6.3: нейтральный сервисный бот (2026-07-07)
 
 const VIDEO_GUIDES = {
   fssp:'https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og',
@@ -2066,6 +2067,11 @@ function renderResultContact(result){
     tgLink.href = 'https://t.me/' + TG_BOT + '?start=' + encodeURIComponent(leadAppId);
   } else {
     tgLink.style.display = 'none';
+    /* v0.6.3: без Telegram почтовая кнопка — основная */
+    const mailBtn0 = document.getElementById('lead-submit-mail');
+    mailBtn0.textContent = 'Получить результат на почту';
+    mailBtn0.className = 'btn btn-primary';
+    mailBtn0.style.marginTop = '0';
   }
 
   function validateLead(){
@@ -2106,7 +2112,7 @@ function renderResultContact(result){
       <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
         <strong>Заявка ${leadAppId} принята.</strong><br>
         Письмо с результатом уже отправлено на вашу почту — если его не видно,
-        проверьте папку «Спам».${withTg ? ' Бот в Telegram пришлёт результат и будет напоминать о шагах.' : ''}
+        проверьте папку «Спам».${withTg ? ' В Telegram придёт подтверждение приёма заявки.' : ''}
         Специалист свяжется по телефону или почте — обычно в течение рабочего дня.
         Звонить без запроса не будем.
       </div>`;
