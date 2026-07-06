@@ -1996,8 +1996,15 @@ function renderResultContact(result){
       <span>Согласен(на) на обработку указанных данных, чтобы получить результат
       диагностики.</span>
     </label>
-    <div class="btn-row">
-      <button class="btn btn-primary" type="button" id="lead-submit">Отправить мне результат</button>
+    <div class="btn-row" style="flex-direction:column">
+      <a class="btn btn-primary" id="lead-submit-tg" href="#" target="_blank" rel="noopener noreferrer"
+         style="display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; text-decoration:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#229ED9"/><path d="M5.3 11.6l12.2-4.9c.6-.2 1.1.1.9.9l-2.1 9.8c-.15.7-.6.87-1.2.54l-3.3-2.44-1.6 1.54c-.18.18-.33.33-.67.33l.24-3.37 6.1-5.5c.27-.24-.06-.37-.41-.14l-7.5 4.7-3.2-1c-.7-.22-.71-.7.15-.96z" fill="#fff"/></svg>
+        Отправить и продолжить в Telegram
+      </a>
+      <button class="btn-save-link" type="button" id="lead-submit-mail" style="margin-top:2px">
+        У меня нет Telegram — отправьте только на почту
+      </button>
     </div>
     <div class="hint" id="lead-status" style="margin-top:8px"></div>
     </div>
@@ -2032,43 +2039,68 @@ function renderResultContact(result){
     }, { threshold: 0.6 });
     io.observe(cd);
   }
-  document.getElementById('lead-submit').addEventListener('click', async () => {
-    const name = document.getElementById('lead-name').value.trim();
+  /* v0.6.1: одна кнопка — данные уходят в таблицу и на почту, клиент сразу
+     переходит в Telegram-бот (тем же нажатием). Запасная — только почта. */
+  const leadAppId = genAppId(); // заранее, чтобы ссылка в Telegram была готова до клика
+  const tgLink = document.getElementById('lead-submit-tg');
+  if(TG_BOT){
+    tgLink.href = 'https://t.me/' + TG_BOT + '?start=' + encodeURIComponent(leadAppId);
+  } else {
+    tgLink.style.display = 'none';
+  }
+
+  function validateLead(){
+    const st = document.getElementById('lead-status');
     const phone = document.getElementById('lead-phone').value.trim();
     const email = document.getElementById('lead-email').value.trim();
     const consent = document.getElementById('lead-consent').checked;
-    const st = document.getElementById('lead-status');
-    const phoneDigits = phone.replace(/\D/g, '');
-    if(phoneDigits.length !== 11){ st.textContent = 'Укажите телефон полностью: +7 и 10 цифр.'; return; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ st.textContent = 'Проверьте адрес почты — на неё придёт результат.'; return; }
-    if(!consent){ st.textContent = 'Нужна отметка согласия — без неё мы не можем сохранить контакт.'; return; }
-    st.textContent = 'Отправляем…';
-    const appId = genAppId();
-    const saveLink = location.origin + location.pathname + '#s=' + encodeState();
+    if(phone.replace(/\D/g, '').length !== 11){ st.textContent = 'Укажите телефон полностью: +7 и 10 цифр.'; return null; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ st.textContent = 'Проверьте адрес почты — на неё придёт результат.'; return null; }
+    if(!consent){ st.textContent = 'Нужна отметка согласия — без неё мы не можем сохранить контакт.'; return null; }
+    st.textContent = '';
+    return {
+      kind:'lead', app_id: leadAppId, client_ts: new Date().toISOString(),
+      name: document.getElementById('lead-name').value.trim(),
+      phone, email, channel:'phone+email', contact: phone,
+      save_link: location.origin + location.pathname + '#s=' + encodeState(),
+      consent: true
+    };
+  }
+
+  function showLeadSuccess(withTg){
+    rc.innerHTML = `
+      <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
+        <strong>Заявка ${leadAppId} принята.</strong><br>
+        Письмо с результатом уже отправлено на вашу почту — если его не видно,
+        проверьте папку «Спам».${withTg ? ' Бот в Telegram пришлёт результат и будет напоминать о шагах.' : ''}
+        Специалист свяжется по телефону или почте — обычно в течение рабочего дня.
+        Звонить без запроса не будем.
+      </div>`;
+  }
+
+  /* Главная кнопка: отправка fire-and-forget + переход в бота тем же кликом */
+  tgLink.addEventListener('click', (e) => {
+    const payload = validateLead();
+    if(!payload){ e.preventDefault(); return; }
+    trackStep('tg_bot_click');
     try{
-      const r = await submitToSheet(Object.assign({
-        kind:'lead', app_id: appId, client_ts: new Date().toISOString(),
-        name, phone, email, channel:'phone+email', contact: phone,
-        save_link: saveLink, consent: true
-      }, collectMeta()));
-      if(r.status === 'ok' || r.status === 'simulated'){
-        const tgBtn = TG_BOT
-          ? `<a class="btn btn-primary" style="display:block; text-align:center; margin-top:12px; min-height:52px; line-height:1.3; padding-top:14px"
-               href="https://t.me/${TG_BOT}?start=${encodeURIComponent(appId)}" target="_blank" rel="noopener noreferrer"
-               onclick="trackStep('tg_bot_click')">➤ Продолжить в Telegram — результат и шаги в боте</a>
-             <div class="hint" style="margin-top:6px">Бот пришлёт результат и будет напоминать о шагах.
-             Переходя в Telegram, вы соглашаетесь получить сообщение от бота. Если Telegram нет — всё уже в письме.</div>`
-          : '';
-        rc.innerHTML = `
-          <div class="info-box" style="background:#eef7ea; color:#2e5c1e; margin-top:18px">
-            <strong>Заявка ${appId} принята.</strong><br>
-            ${r.status === 'simulated'
-              ? 'Демо-режим: данные никуда не отправлены.'
-              : 'Письмо с результатом уже отправлено на вашу почту — если его не видно, проверьте папку «Спам». Специалист свяжется по телефону или почте — обычно в течение рабочего дня. Звонить без запроса не будем.'}
-          </div>` + tgBtn;
-      } else {
-        st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.';
-      }
+      fetch(SUBMIT_URL, { method:'POST', keepalive:true,
+        body: JSON.stringify(Object.assign(payload, collectMeta())) });
+    }catch(err){}
+    showLeadSuccess(true);
+    /* переход в t.me происходит самим кликом по ссылке */
+  });
+
+  /* Запасная: только почта */
+  document.getElementById('lead-submit-mail').addEventListener('click', async () => {
+    const payload = validateLead();
+    if(!payload) return;
+    const st = document.getElementById('lead-status');
+    st.textContent = 'Отправляем…';
+    try{
+      const r = await submitToSheet(Object.assign(payload, collectMeta()));
+      if(r.status === 'ok' || r.status === 'simulated'){ showLeadSuccess(false); }
+      else { st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.'; }
     }catch(e){
       st.textContent = 'Не получилось отправить (нет связи). Результат сохранён в браузере.';
     }
