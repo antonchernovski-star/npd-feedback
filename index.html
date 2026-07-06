@@ -339,6 +339,12 @@
 
   .hidden{display:none !important}
 
+  /* v0.6.2: подсветка ошибок формы */
+  .field-error{border-color:#C0392B !important; background:#FDF3F2 !important}
+  .consent-error{outline:2px solid #C0392B; outline-offset:4px; border-radius:8px}
+  .lead-status-err{color:#C0392B; font-weight:600}
+  .req{color:#C0392B}
+
   /* v0.6: мягкий переход между вопросами */
   @keyframes qfade{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
   .q-anim{animation:qfade .28s ease}
@@ -1980,15 +1986,15 @@ function renderResultContact(result){
     <p class="lead" style="font-size:14px; margin:4px 0 10px">Вместе с подходящими гайдами.
     Это необязательно: результат уже сохранён в этом браузере. Звонить без запроса не будем.</p>
     <div class="form-row">
-      <label for="lead-name">Как к вам обращаться</label>
+      <label for="lead-name">Как к вам обращаться <span class="req">*</span></label>
       <input id="lead-name" type="text" placeholder="Имя" autocomplete="name">
     </div>
     <div class="form-row">
-      <label for="lead-phone">Телефон</label>
+      <label for="lead-phone">Телефон <span class="req">*</span></label>
       <input id="lead-phone" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel">
     </div>
     <div class="form-row">
-      <label for="lead-email">Электронная почта — на неё придёт результат</label>
+      <label for="lead-email">Электронная почта — на неё придёт результат <span class="req">*</span></label>
       <input id="lead-email" type="email" inputmode="email" placeholder="name@example.ru" autocomplete="email">
     </div>
     <label class="consent-row" style="display:flex; gap:8px; align-items:flex-start; font-size:13px; margin:8px 0">
@@ -2010,6 +2016,18 @@ function renderResultContact(result){
     </div>
     </details>
   `;
+  /* v0.6.2: «маска» почты — без пробелов, нижний регистр, только допустимые символы */
+  const emailInp = document.getElementById('lead-email');
+  emailInp.addEventListener('input', () => {
+    const clean = emailInp.value.replace(/\s+/g, '').replace(/[^a-zA-Z0-9@._%+\-]/g, '').toLowerCase();
+    if(clean !== emailInp.value) emailInp.value = clean;
+    emailInp.classList.remove('field-error');
+  });
+  document.getElementById('lead-name').addEventListener('input', (e) => e.target.classList.remove('field-error'));
+  document.getElementById('lead-consent').addEventListener('change', (e) => {
+    e.target.closest('.consent-row').classList.remove('consent-error');
+  });
+
   /* v0.6: маска телефона +7 (999) 123-45-67 */
   const phoneInp = document.getElementById('lead-phone');
   phoneInp.addEventListener('input', () => {
@@ -2024,6 +2042,7 @@ function renderResultContact(result){
     if(d.length >= 7) out += '-' + d.slice(7, 9);
     if(d.length >= 9) out += '-' + d.slice(9, 11);
     phoneInp.value = out;
+    phoneInp.classList.remove('field-error');
   });
   /* v0.6: авто-раскрытие блока отправки, когда клиент доскроллил до него */
   const cd = document.getElementById('contact-details');
@@ -2051,13 +2070,28 @@ function renderResultContact(result){
 
   function validateLead(){
     const st = document.getElementById('lead-status');
-    const phone = document.getElementById('lead-phone').value.trim();
-    const email = document.getElementById('lead-email').value.trim();
-    const consent = document.getElementById('lead-consent').checked;
-    if(phone.replace(/\D/g, '').length !== 11){ st.textContent = 'Укажите телефон полностью: +7 и 10 цифр.'; return null; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ st.textContent = 'Проверьте адрес почты — на неё придёт результат.'; return null; }
-    if(!consent){ st.textContent = 'Нужна отметка согласия — без неё мы не можем сохранить контакт.'; return null; }
+    const nameInp = document.getElementById('lead-name');
+    const phoneEl = document.getElementById('lead-phone');
+    const emailEl = document.getElementById('lead-email');
+    const consentEl = document.getElementById('lead-consent');
+    const consentRow = consentEl.closest('.consent-row');
+    st.classList.add('lead-status-err');
+
+    function fail(el, message){
+      st.textContent = message;
+      if(el === consentEl){ consentRow.classList.add('consent-error'); consentRow.scrollIntoView({behavior:'smooth', block:'center'}); }
+      else { el.classList.add('field-error'); el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+      return null;
+    }
+    const name = nameInp.value.trim();
+    const phone = phoneEl.value.trim();
+    const email = emailEl.value.trim();
+    if(name.length < 2) return fail(nameInp, 'Укажите, как к вам обращаться — это обязательное поле.');
+    if(phone.replace(/\D/g, '').length !== 11) return fail(phoneEl, 'Укажите телефон полностью: +7 и 10 цифр.');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail(emailEl, 'Проверьте адрес почты — на неё придёт результат. Пример: name@mail.ru');
+    if(!consentEl.checked) return fail(consentEl, 'Чтобы отправить результат, нужно принять согласие на обработку персональных данных — отметьте галочку.');
     st.textContent = '';
+    st.classList.remove('lead-status-err');
     return {
       kind:'lead', app_id: leadAppId, client_ts: new Date().toISOString(),
       name: document.getElementById('lead-name').value.trim(),
