@@ -653,12 +653,8 @@
 
     <h3>2. Контакт для связи</h3>
     <div class="form-row">
-      <label for="up-name">Как к вам обращаться</label>
-      <input id="up-name" type="text" placeholder="Имя">
-    </div>
-    <div class="form-row">
-      <label for="up-contact">Куда ответить (телефон, Telegram или e-mail)</label>
-      <input id="up-contact" type="text" placeholder="Телефон, Telegram или e-mail">
+      <label for="up-email">Электронная почта — на неё придёт подтверждение и ответ <span class="req">*</span></label>
+      <input id="up-email" type="email" inputmode="email" placeholder="name@example.ru" autocomplete="email">
     </div>
     <div class="form-row">
       <label for="up-comment">Комментарий (необязательно)</label>
@@ -670,14 +666,18 @@
       <span>Согласен(на) на обработку данных, чтобы специалист проверил документы.</span>
     </label>
 
-    <div class="btn-row" id="upload-actions">
-      <button class="btn btn-primary" type="button" id="upload-submit" disabled>Отправить на проверку</button>
+    <div class="btn-row" id="upload-actions" style="flex-direction:column">
+      <a class="btn btn-primary" id="upload-submit-tg" href="#" target="_blank" rel="noopener noreferrer"
+         style="display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; text-decoration:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#229ED9"/><path d="M5.3 11.6l12.2-4.9c.6-.2 1.1.1.9.9l-2.1 9.8c-.15.7-.6.87-1.2.54l-3.3-2.44-1.6 1.54c-.18.18-.33.33-.67.33l.24-3.37 6.1-5.5c.27-.24-.06-.37-.41-.14l-7.5 4.7-3.2-1c-.7-.22-.71-.7.15-.96z" fill="#fff"/></svg>
+        Отправить и продолжить в Telegram
+      </a>
+      <button class="btn-save-link" type="button" id="upload-submit-mail" style="margin-top:2px">
+        У меня нет Telegram — отправьте только на почту
+      </button>
       <button class="btn btn-outline" type="button" data-go="back-from-upload">← Назад</button>
     </div>
-    <div class="hint" id="upload-hint">
-      Кнопка станет активной, когда вы выберете хотя бы один тип документа
-      и отметите согласие.
-    </div>
+    <div class="hint" id="upload-hint"></div>
 
     <div class="disclaimer">
       Материал носит информационный характер и не является юридической консультацией.
@@ -894,7 +894,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.3
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.4
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -2101,7 +2101,8 @@ function renderResultContact(result){
     return {
       kind:'lead', app_id: leadAppId, client_ts: new Date().toISOString(),
       name: document.getElementById('lead-name').value.trim(),
-      phone, email, channel:'phone+email', contact: phone,
+      phone: phone.replace(/\D/g, ''), email, channel:'phone+email',
+      contact: phone.replace(/\D/g, ''), /* v0.6.4: только цифры — '+' ломал ячейку Google Sheets */
       save_link: location.origin + location.pathname + '#s=' + encodeState(),
       consent: true
     };
@@ -2204,6 +2205,8 @@ function renderResultGuides(result){
 }
 
 function renderResult(result){
+  /* v0.6.4: состояние в адресе — если вкладка потеряется, результат восстановится по ссылке */
+  try{ history.replaceState(null, '', '#s=' + encodeState()); }catch(e){}
   const c = RESULT_CONTENT[result.route];
   $('result-badge').textContent = c.badge;
   $('result-title').textContent = c.title;
@@ -2508,8 +2511,7 @@ function resetUploadForm(){
   document.querySelectorAll('#doc-types input[type=checkbox]').forEach(c => c.checked = false);
   document.querySelectorAll('#doc-types .doc-type').forEach(d => d.classList.remove('is-selected'));
   $('doc-zones').innerHTML = '';
-  $('up-name').value = '';
-  $('up-contact').value = '';
+  $('up-email').value = '';
   $('up-comment').value = '';
   $('up-consent').checked = false;
   updateDocSummary();
@@ -2575,9 +2577,7 @@ function readFileB64(f){
 }
 
 function updateUploadBtn(){
-  const ok = STATE.uploadSelectedTypes.length > 0 && $('up-consent').checked;
-  $('upload-submit').disabled = !ok;
-  $('upload-hint').style.display = ok ? 'none' : '';
+  /* v0.6.4: кнопки всегда активны, проверка — при нажатии (как в лид-форме) */
 }
 
 document.querySelectorAll('#doc-types .doc-type').forEach(label => {
@@ -2602,56 +2602,111 @@ document.querySelectorAll('#doc-types .doc-type').forEach(label => {
 
 $('up-consent').addEventListener('change', updateUploadBtn);
 
-$('upload-submit').addEventListener('click', async () => {
+/* v0.6.4: отправка документов — как в лид-форме: одна кнопка ведёт в Telegram,
+   запасная — только почта. Поля: почта (обязательно, с маской) + комментарий. */
+const uploadAppId = genAppId();
+const upTgLink = $('upload-submit-tg');
+if(TG_BOT){
+  upTgLink.href = 'https://t.me/' + TG_BOT + '?start=' + encodeURIComponent(uploadAppId);
+} else {
+  upTgLink.style.display = 'none';
+  const m0 = $('upload-submit-mail');
+  m0.textContent = 'Отправить на проверку';
+  m0.className = 'btn btn-primary';
+  m0.style.marginTop = '0';
+}
+const upEmailInp = $('up-email');
+upEmailInp.addEventListener('input', () => {
+  const clean = upEmailInp.value.replace(/\s+/g, '').replace(/[^a-zA-Z0-9@._%+\-]/g, '').toLowerCase();
+  if(clean !== upEmailInp.value) upEmailInp.value = clean;
+  upEmailInp.classList.remove('field-error');
+});
+
+function validateUpload(){
+  const hint = $('upload-hint');
+  hint.style.color = '#b3261e';
   if(STATE.uploadSelectedTypes.length === 0){
-    alert('Выберите хотя бы один тип документа.');
-    return;
+    hint.textContent = 'Выберите хотя бы один тип документа.';
+    return false;
+  }
+  const email = upEmailInp.value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+    hint.textContent = 'Укажите почту — на неё придёт подтверждение и ответ. Пример: name@mail.ru';
+    upEmailInp.classList.add('field-error');
+    upEmailInp.focus();
+    upEmailInp.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
   }
   if(!$('up-consent').checked){
-    alert('Поставьте отметку согласия — без неё мы не можем принять документы.');
-    return;
+    hint.textContent = 'Поставьте отметку согласия — без неё мы не можем принять документы.';
+    return false;
   }
-  const labels = STATE.uploadSelectedTypes.map(t => DOC_TYPE_LABELS[t]);
-  const btn = $('upload-submit');
+  hint.textContent = '';
+  return true;
+}
 
-  /* v0.4 (правка 5): реальная отправка файлов, если форма подключена */
-  if(SUBMIT_URL){
-    btn.disabled = true; btn.textContent = 'Отправляем…';
-    try{
-      const files = [];
-      for(const t of STATE.uploadSelectedTypes){
-        for(const f of (STATE.uploadFiles[t] || [])){
-          files.push({ doctype: t, name: f.name, mime: f.type || 'application/octet-stream',
-                       data: await readFileB64(f) });
-        }
-      }
-      const appId = genAppId();
-      const r = await submitToSheet(Object.assign({
-        kind:'upload', app_id: appId, client_ts: new Date().toISOString(),
-        name: $('up-name').value.trim(), contact: $('up-contact').value.trim(),
-        comment: $('up-comment').value.trim(), consent: true,
-        doc_types: STATE.uploadSelectedTypes, files
-      }, collectMeta()));
-      if(r.status === 'ok'){
-        $('upload-done-summary').innerHTML =
-          '<strong>Заявка ' + escapeHtml(r.app_id || appId) + ' принята.</strong><br>Вы передали: ' +
-          escapeHtml(labels.join(' · ')) + (files.length ? ' — файлов: ' + files.length : ' (без файлов)');
-        showScreen('screen-upload-done');
-      } else {
-        alert('Не получилось отправить: ' + (r.error || 'попробуйте позже.'));
-      }
-    }catch(e){
-      alert('Не получилось отправить (нет связи). Попробуйте позже.');
-    }finally{
-      btn.disabled = false; btn.textContent = 'Отправить на проверку';
+async function buildUploadPayload(){
+  const files = [];
+  for(const t of STATE.uploadSelectedTypes){
+    for(const f of (STATE.uploadFiles[t] || [])){
+      files.push({ doctype: t, name: f.name, mime: f.type || 'application/octet-stream',
+                   data: await readFileB64(f) });
     }
-    return;
   }
+  return Object.assign({
+    kind:'upload', app_id: uploadAppId, client_ts: new Date().toISOString(),
+    email: upEmailInp.value.trim(), contact: upEmailInp.value.trim(),
+    comment: $('up-comment').value.trim(), consent: true,
+    doc_types: STATE.uploadSelectedTypes, files
+  }, collectMeta());
+}
 
-  // Режим имитации (SUBMIT_URL не задан)
+function showUploadDone(withTg){
+  const labels = STATE.uploadSelectedTypes.map(t => DOC_TYPE_LABELS[t]);
   $('upload-done-summary').innerHTML =
-    '<strong>Вы передали:</strong> ' + escapeHtml(labels.join(' · '));
+    '<strong>Заявка ' + escapeHtml(uploadAppId) + ' принята.</strong><br>Вы передали: ' +
+    escapeHtml(labels.join(' · ')) +
+    '.<br>Подтверждение отправлено на вашу почту — если письма не видно, проверьте папку «Спам».' +
+    (withTg ? ' В Telegram придёт подтверждение приёма.' : '');
   showScreen('screen-upload-done');
+}
+
+/* Главная кнопка: переход в бота самим кликом, файлы уходят фоном —
+   страница остаётся открытой, поэтому обычный fetch доживёт до конца */
+upTgLink.addEventListener('click', (e) => {
+  if(!validateUpload()){ e.preventDefault(); return; }
+  trackStep('upload_tg_click');
+  (async () => {
+    try{
+      const payload = await buildUploadPayload();
+      if(SUBMIT_URL){ await submitToSheet(payload); }
+      showUploadDone(true);
+    }catch(err){
+      $('upload-hint').textContent = 'Не получилось отправить файлы (нет связи). Попробуйте ещё раз.';
+    }
+  })();
+});
+
+/* Запасная: только почта */
+$('upload-submit-mail').addEventListener('click', async () => {
+  if(!validateUpload()) return;
+  const btn = $('upload-submit-mail');
+  const t0 = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Отправляем…';
+  try{
+    const payload = await buildUploadPayload();
+    if(SUBMIT_URL){
+      const r = await submitToSheet(payload);
+      if(r.status === 'ok' || r.status === 'simulated'){ showUploadDone(false); }
+      else { $('upload-hint').textContent = 'Не получилось отправить: ' + (r.error || 'попробуйте позже.'); }
+    } else {
+      showUploadDone(false);
+    }
+  }catch(e){
+    $('upload-hint').textContent = 'Не получилось отправить (нет связи). Попробуйте позже.';
+  }finally{
+    btn.disabled = false; btn.textContent = t0;
+  }
 });
 
 /* ============== ГАЙДЫ-ЗАГЛУШКИ ============== */
@@ -2820,6 +2875,15 @@ $('guide-modal').addEventListener('click', (e) => {
 showScreen('screen-start');
 renderQuestion();
 updateUploadBtn();
+
+/* v0.6.4: внешние ссылки (ФССП, Госуслуги) на десктопе — отдельным окном,
+   Навигатор остаётся виден. На мобильных — обычная новая вкладка. */
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a.ext-link');
+  if(!a || window.innerWidth < 900) return;
+  e.preventDefault();
+  window.open(a.href, 'npd_ext', 'noopener,width=1100,height=800,left=80,top=40');
+});
 </script>
 
 </body>
