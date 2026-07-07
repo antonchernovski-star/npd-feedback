@@ -672,11 +672,8 @@
       <a class="btn btn-primary" id="upload-submit-tg" href="#" target="_blank" rel="noopener noreferrer"
          style="display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; text-decoration:none">
         <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#229ED9"/><path d="M5.3 11.6l12.2-4.9c.6-.2 1.1.1.9.9l-2.1 9.8c-.15.7-.6.87-1.2.54l-3.3-2.44-1.6 1.54c-.18.18-.33.33-.67.33l.24-3.37 6.1-5.5c.27-.24-.06-.37-.41-.14l-7.5 4.7-3.2-1c-.7-.22-.71-.7.15-.96z" fill="#fff"/></svg>
-        Отправить и продолжить в Telegram
+        Отправить на проверку
       </a>
-      <button class="btn-save-link" type="button" id="upload-submit-mail" style="margin-top:2px">
-        У меня нет Telegram — отправьте только на почту
-      </button>
       <button class="btn btn-outline" type="button" data-go="back-from-upload">← Назад</button>
     </div>
     <div class="hint" id="upload-hint"></div>
@@ -946,7 +943,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.9
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.10
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -2062,11 +2059,8 @@ function renderResultContact(result){
       <a class="btn btn-primary" id="lead-submit-tg" href="#" target="_blank" rel="noopener noreferrer"
          style="display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; text-decoration:none">
         <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#229ED9"/><path d="M5.3 11.6l12.2-4.9c.6-.2 1.1.1.9.9l-2.1 9.8c-.15.7-.6.87-1.2.54l-3.3-2.44-1.6 1.54c-.18.18-.33.33-.67.33l.24-3.37 6.1-5.5c.27-.24-.06-.37-.41-.14l-7.5 4.7-3.2-1c-.7-.22-.71-.7.15-.96z" fill="#fff"/></svg>
-        Отправить и продолжить в Telegram
+        Отправить
       </a>
-      <button class="btn-save-link" type="button" id="lead-submit-mail" style="margin-top:2px">
-        У меня нет Telegram — отправьте только на почту
-      </button>
     </div>
     <div class="hint" id="lead-status" style="margin-top:8px"></div>
     </div>
@@ -2121,12 +2115,10 @@ function renderResultContact(result){
   if(TG_BOT){
     tgLink.href = 'https://t.me/' + TG_BOT + '?start=' + encodeURIComponent(leadAppId);
   } else {
-    tgLink.style.display = 'none';
-    /* v0.6.3: без Telegram почтовая кнопка — основная */
-    const mailBtn0 = document.getElementById('lead-submit-mail');
-    mailBtn0.textContent = 'Получить результат на почту';
-    mailBtn0.className = 'btn btn-primary';
-    mailBtn0.style.marginTop = '0';
+    /* v0.6.10: бота нет — та же кнопка работает в режиме «только почта» */
+    tgLink.removeAttribute('href');
+    tgLink.removeAttribute('target');
+    const ic = tgLink.querySelector('svg'); if(ic) ic.style.display = 'none';
   }
 
   function validateLead(){
@@ -2174,32 +2166,32 @@ function renderResultContact(result){
       </div>`;
   }
 
-  /* Главная кнопка: отправка fire-and-forget + переход в бота тем же кликом */
+  /* v0.6.10: одна кнопка «Отправить». С ботом — данные уходят fire-and-forget,
+     переход в t.me тем же кликом. Без бота — обычная отправка на почту. */
   tgLink.addEventListener('click', (e) => {
     const payload = validateLead();
     if(!payload){ e.preventDefault(); return; }
-    trackStep('tg_bot_click');
-    try{
-      fetch(SUBMIT_URL, { method:'POST', keepalive:true,
-        body: JSON.stringify(Object.assign(payload, collectMeta())) });
-    }catch(err){}
-    showLeadSuccess(true);
-    /* переход в t.me происходит самим кликом по ссылке */
-  });
-
-  /* Запасная: только почта */
-  document.getElementById('lead-submit-mail').addEventListener('click', async () => {
-    const payload = validateLead();
-    if(!payload) return;
-    const st = document.getElementById('lead-status');
-    st.textContent = 'Отправляем…';
-    try{
-      const r = await submitToSheet(Object.assign(payload, collectMeta()));
-      if(r.status === 'ok' || r.status === 'simulated'){ showLeadSuccess(false); }
-      else { st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.'; }
-    }catch(e){
-      st.textContent = 'Не получилось отправить (нет связи). Результат сохранён в браузере.';
+    if(TG_BOT){
+      trackStep('tg_bot_click');
+      try{
+        fetch(SUBMIT_URL, { method:'POST', keepalive:true,
+          body: JSON.stringify(Object.assign(payload, collectMeta())) });
+      }catch(err){}
+      showLeadSuccess(true);
+      return; /* переход в t.me происходит самим кликом по ссылке */
     }
+    e.preventDefault();
+    (async () => {
+      const st = document.getElementById('lead-status');
+      st.textContent = 'Отправляем…';
+      try{
+        const r = await submitToSheet(Object.assign(payload, collectMeta()));
+        if(r.status === 'ok' || r.status === 'simulated'){ showLeadSuccess(false); }
+        else { st.textContent = 'Не получилось отправить. Попробуйте ещё раз чуть позже.'; }
+      }catch(e2){
+        st.textContent = 'Не получилось отправить (нет связи). Результат сохранён в браузере.';
+      }
+    })();
   });
 }
 
@@ -2663,11 +2655,10 @@ const upTgLink = $('upload-submit-tg');
 if(TG_BOT){
   upTgLink.href = 'https://t.me/' + TG_BOT + '?start=' + encodeURIComponent(uploadAppId);
 } else {
-  upTgLink.style.display = 'none';
-  const m0 = $('upload-submit-mail');
-  m0.textContent = 'Отправить на проверку';
-  m0.className = 'btn btn-primary';
-  m0.style.marginTop = '0';
+  /* v0.6.10: без бота — та же кнопка в режиме «только почта» */
+  upTgLink.removeAttribute('href');
+  upTgLink.removeAttribute('target');
+  const ic0 = upTgLink.querySelector('svg'); if(ic0) ic0.style.display = 'none';
 }
 const upEmailInp = $('up-email');
 upEmailInp.addEventListener('input', () => {
@@ -2729,38 +2720,17 @@ function showUploadDone(withTg){
    страница остаётся открытой, поэтому обычный fetch доживёт до конца */
 upTgLink.addEventListener('click', (e) => {
   if(!validateUpload()){ e.preventDefault(); return; }
-  trackStep('upload_tg_click');
+  if(TG_BOT) trackStep('upload_tg_click');
+  else e.preventDefault();
   (async () => {
     try{
       const payload = await buildUploadPayload();
       if(SUBMIT_URL){ await submitToSheet(payload); }
-      showUploadDone(true);
+      showUploadDone(!!TG_BOT);
     }catch(err){
       $('upload-hint').textContent = 'Не получилось отправить файлы (нет связи). Попробуйте ещё раз.';
     }
   })();
-});
-
-/* Запасная: только почта */
-$('upload-submit-mail').addEventListener('click', async () => {
-  if(!validateUpload()) return;
-  const btn = $('upload-submit-mail');
-  const t0 = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Отправляем…';
-  try{
-    const payload = await buildUploadPayload();
-    if(SUBMIT_URL){
-      const r = await submitToSheet(payload);
-      if(r.status === 'ok' || r.status === 'simulated'){ showUploadDone(false); }
-      else { $('upload-hint').textContent = 'Не получилось отправить: ' + (r.error || 'попробуйте позже.'); }
-    } else {
-      showUploadDone(false);
-    }
-  }catch(e){
-    $('upload-hint').textContent = 'Не получилось отправить (нет связи). Попробуйте позже.';
-  }finally{
-    btn.disabled = false; btn.textContent = t0;
-  }
 });
 
 /* ============== ГАЙДЫ-ЗАГЛУШКИ ============== */
