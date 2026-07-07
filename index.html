@@ -946,7 +946,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.7
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.8
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -2370,8 +2370,8 @@ function renderDebug(result, c){
   html += '<h4>CTA, показанные клиенту</h4>';
   html += `<ul>
     <li>Главный: <code>${escapeHtml(c.primaryCta.label)}</code> → <code>${c.primaryCta.go}</code></li>
-    <li>Альтернативный: <code>${escapeHtml(c.altCta.label)}</code> → <code>${c.altCta.go}</code></li>
-    <li>«Что дальше»: <code>${escapeHtml(c.nextStep.label)}</code> → <code>${c.nextStep.go}</code></li>
+    <li>Альтернативный: <code>${c.altCta ? escapeHtml(c.altCta.label) + '</code> → <code>' + c.altCta.go : '—'}</code></li>
+    <li>«Что дальше»: <code>${c.nextStep ? escapeHtml(c.nextStep.label) + '</code> → <code>' + c.nextStep.go : '—'}</code></li>
   </ul>`;
 
   html += '<h4>Доступные гайды для этого маршрута</h4>';
