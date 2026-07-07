@@ -387,6 +387,7 @@
     <button type="button" id="menu-restart">↺ Начать диагностику заново</button>
     <button type="button" id="menu-video-fssp" class="hidden">▶ Видео: проверка ФССП</button>
     <button type="button" id="menu-video-bki" class="hidden">▶ Видео: отчёты БКИ</button>
+    <button type="button" id="menu-project">О проекте</button>
     <button type="button" id="menu-about">Как работает сервис</button>
   </div>
 </div>
@@ -844,6 +845,56 @@
   </div>
 </div>
 
+<!-- ========== МОДАЛКА «О ПРОЕКТЕ» (v0.6.7) ========== -->
+<div class="modal-overlay" id="project-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-head">
+      <h3>О проекте</h3>
+      <button class="modal-close" type="button" data-close="project-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p><strong>НАВИГАТОР ПО ДОЛГАМ</strong> — бесплатный сервис предварительной
+      диагностики для людей с долгами. Идея простая: <strong>сначала разобраться —
+      потом действовать.</strong></p>
+
+      <p>Сервис вырос из практики специалистов по банкротству граждан. К ним
+      постоянно приходили люди, которые уже успели сделать себе хуже: подали
+      заявление не туда, забыли указать кредитора, потеряли право на внесудебную
+      процедуру или годами платили тем, кто громче требует. Почти каждой из этих
+      ошибок можно было избежать, если бы человек с самого начала понимал
+      свой маршрут.</p>
+
+      <p>Этот опыт собран в короткую диагностику. Она не продаёт «списание долгов»
+      и не подталкивает к банкротству — она показывает, какой путь в вашей ситуации
+      выглядит безопаснее: внесудебная процедура через МФЦ, подготовка, проверка
+      рисков, судебная процедура или «пока не время».</p>
+
+      <p><strong>Почему стоит пройти:</strong></p>
+      <ul style="margin:8px 0 12px; padding-left:20px; line-height:1.6">
+        <li>5 минут и около 12 вопросов, «не знаю» — нормальный ответ;</li>
+        <li>анонимно: имя и телефон в вопросах не запрашиваются;</li>
+        <li>сразу видите предварительный маршрут и главные риски;</li>
+        <li>если МФЦ предварительно подходит — бесплатный пошаговый гайд
+            по самостоятельному прохождению;</li>
+        <li>никаких звонков без запроса и никаких обязательств.</li>
+      </ul>
+
+      <p>Ошибка в начале пути с долгами обходится дороже всего.
+      Диагностика — способ её не совершить.</p>
+
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn btn-primary" type="button" id="project-cta">Пройти диагностику бесплатно →</button>
+        <button class="btn btn-outline" type="button" data-close="project-modal">Закрыть</button>
+      </div>
+
+      <div class="disclaimer" style="margin-top:14px">
+        Материал носит информационный характер и не является юридической консультацией.
+        Окончательный вывод возможен только после проверки документов.
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ========== МОДАЛКА «СОХРАНИТЬ И ВЕРНУТЬСЯ» (v0.4, правка 7) ========== -->
 <div class="modal-overlay" id="save-modal" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:560px">
@@ -895,7 +946,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.6
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.7
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1594,6 +1645,15 @@ document.addEventListener('click', (e) => {
   if(!$('menu-drop').contains(e.target) && e.target !== $('menu-btn')){
     $('menu-drop').classList.remove('is-open');
   }
+});
+$('menu-project').addEventListener('click', () => {
+  $('menu-drop').classList.remove('is-open');
+  $('project-modal').classList.add('is-open');
+  trackStep('about_project_open');
+});
+$('project-cta').addEventListener('click', () => {
+  closeOverlay('project-modal');
+  goTo('quiz'); /* продолжает с текущего вопроса, если диагностика уже начата */
 });
 $('menu-about').addEventListener('click', () => {
   $('menu-drop').classList.remove('is-open');
@@ -2416,7 +2476,7 @@ document.querySelectorAll('[data-close]').forEach(btn => {
   btn.addEventListener('click', () => closeOverlay(btn.dataset.close));
 });
 /* v0.4.4: закрытие по клику на затемнение и по Esc — для всех модалок */
-['video-modal','save-modal'].forEach(id => {
+['video-modal','save-modal','project-modal'].forEach(id => {
   $(id).addEventListener('click', (e) => { if(e.target === $(id)) closeOverlay(id); });
 });
 document.addEventListener('keydown', (e) => {
