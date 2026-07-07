@@ -894,7 +894,7 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.4
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.5
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1839,7 +1839,6 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Открыть самостоятельный маршрут', go:'self-service' },
     altCta: { label:'Проверить документы перед подачей', go:'upload' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   yellow_a: {
     badge: 'Маршрут диагностики',
@@ -1855,7 +1854,6 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Уточнить документы и данные', go:'upload' },
     altCta: { label:'Открыть гайды для уточнения данных', go:'refine-modal' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   yellow_b: {
     badge: 'Маршрут диагностики',
@@ -1870,7 +1868,6 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Подготовить ситуацию', go:'upload' },
     altCta: { label:'Открыть гайды для уточнения данных', go:'refine-modal' },
-    nextStep: { label:'Посмотреть, как выглядит загрузка документов', go:'upload' }
   },
   risk_check: {
     badge: 'Маршрут диагностики',
@@ -1886,7 +1883,6 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Загрузить документы на проверку', go:'upload' },
     altCta: { label:'Посмотреть, какие документы понадобятся', go:'refine-modal' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   bfl_better: {
     badge: 'Маршрут диагностики',
@@ -1902,7 +1898,6 @@ const RESULT_CONTENT = {
     `,
     primaryCta: { label:'Сравнить варианты', go:'compare-modal' },
     altCta: { label:'Передать документы на проверку', go:'upload' },
-    nextStep: { label:'Сохранить результат и вернуться позже', go:'save-modal' }
   },
   not_now: {
     badge: 'Маршрут диагностики',
@@ -1918,8 +1913,7 @@ const RESULT_CONTENT = {
       изменится.</p>
     `,
     primaryCta: { label:'Получить план контроля ситуации', go:'not-now-plan' },
-    altCta: { label:'Сохранить результат и вернуться позже', go:'save-modal' },
-    nextStep: { label:'Посмотреть, как выглядит загрузка документов', go:'upload' }
+
   }
 };
 
@@ -1977,7 +1971,7 @@ function renderResultContact(result){
   if(!rc){
     rc = document.createElement('div');
     rc.id = 'result-contact';
-    const anchor = document.getElementById('result-guides') || $('result-cta');
+    const anchor = $('result-cta'); /* v0.6.5: гайды теперь над CTA */
     anchor.parentNode.insertBefore(rc, anchor.nextSibling);
   }
   rc.innerHTML = `
@@ -2148,18 +2142,17 @@ function renderResultContact(result){
   });
 }
 
-/* v0.6: гайды и видео ФССП/БКИ на всех маршрутах, кроме Green
-   (в Green они уже встроены в самостоятельный маршрут).
+/* v0.6.5: гайды и видео ФССП/БКИ — во всех 6 маршрутах, блок стоит НАД
+   карточкой «Ваш следующий шаг» (решение владельца от 2026-07-07).
    Гайды по списку кредиторов и МФЦ здесь сознательно НЕ даются —
    это шаги Green-пути (файл 24: гайд 22 не показывать вне Green). */
 function renderResultGuides(result){
   let rg = document.getElementById('result-guides');
-  if(result.route === 'green'){ if(rg) rg.remove(); return; }
   if(!rg){
     rg = document.createElement('div');
     rg.id = 'result-guides';
     const cta = $('result-cta');
-    cta.parentNode.insertBefore(rg, cta.nextSibling);
+    cta.parentNode.insertBefore(rg, cta);
   }
   rg.innerHTML = `
     <details class="result-details">
