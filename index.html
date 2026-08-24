@@ -971,7 +971,12 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.12
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.13
+   (v0.6.13 от 2026-08-25, хотфикс телеметрии: процент просмотра для
+    video_bki_report_completed считается из currentTime/duration события
+    TimeUpdate; поле percent у Kinescope — целые 0–100, и нормализация
+    v0.6.12 давала ложный completed на отметке ровно 1%. Обнаружено
+    сквозным тестом на проде сразу после деплоя v0.6.12.)
    (v0.6.12 от 2026-08-25: встроено видео 2б «Как читать справки из БКИ»
     на Kinescope — третий ключ bki_report в VIDEO_GUIDES; показывается
     внутри гайд-слоя БКИ (модалка гайда, Green шаг 2, блок «Проверьте
@@ -2642,9 +2647,17 @@ function attachKinescopeTracking(key, player){
     });
     player.on(player.Events.TimeUpdate, (ev) => {
       const d = (ev && ev.data) ? ev.data : {};
+      /* v0.6.13: процент считаем сами из currentTime/duration — поле d.percent
+         у Kinescope целочисленное 0–100, и «нормализация» v0.6.12 ломалась
+         ровно на значении 1 (1% превращался в 100% → ложный completed) */
       let pct = null;
-      if(typeof d.percent === 'number') pct = d.percent <= 1 ? d.percent * 100 : d.percent;
+      if(typeof d.currentTime === 'number' && typeof d.duration === 'number' && d.duration > 0){
+        pct = d.currentTime / d.duration * 100;
+      } else if(typeof d.percent === 'number'){
+        pct = d.percent;
+      }
       if(pct === null) return;
+      if(d.ended === true) pct = 100;
       if(pct > st.max_percent) st.max_percent = Math.round(pct);
       /* «досмотрен» = 90%+ — финальные титры не должны ломать метрику */
       if(pct >= 90) trackVideoEvent(key, 'completed');
