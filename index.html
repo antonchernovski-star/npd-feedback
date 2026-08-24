@@ -204,6 +204,14 @@
     #video-modal .modal{max-width:96vw}
     .video-wrap{padding-top:177.78%}
   }
+  /* v0.6.12: горизонтальные видео (скринкаст БКИ 16:9) — на мобильных тоже 16:9 */
+  .video-wrap.is-horizontal{padding-top:56.25%}
+  @media (max-width:640px){
+    .video-wrap.is-horizontal{padding-top:56.25%}
+  }
+  #video-kinescope{position:absolute; inset:0; width:100%; height:100%;
+    border-radius:10px; overflow:hidden}
+  #video-kinescope iframe{width:100%; height:100%; border:0}
 
   .help-details{margin-top:14px; border:1px solid var(--border);
     border-radius:10px; background:#fbf9f7; overflow:hidden}
@@ -386,7 +394,8 @@
   <div id="menu-drop">
     <button type="button" id="menu-restart">↺ Начать диагностику заново</button>
     <button type="button" id="menu-video-fssp" class="hidden">▶ Видео: проверка ФССП</button>
-    <button type="button" id="menu-video-bki" class="hidden">▶ Видео: отчёты БКИ</button>
+    <button type="button" id="menu-video-bki" class="hidden">▶ Видео: как получить БКИ</button>
+    <button type="button" id="menu-video-bki_report" class="hidden">▶ Видео: как читать отчёты БКИ</button>
     <button type="button" id="menu-project">О проекте</button>
     <button type="button" id="menu-about">Как работает сервис</button>
   </div>
@@ -549,6 +558,14 @@
             </span>
             <span class="vp-badge">▶ Смотреть</span>
           </div>
+          <div class="video-preview hidden" data-video="bki_report" role="button" tabindex="0" aria-label="Смотреть видео: как читать справки из БКИ">
+            <span class="vp-thumb"></span>
+            <span class="vp-text">
+              <span class="vp-title">Видео: как читать справки из БКИ</span>
+              <span class="vp-sub">Когда отчёты уже на руках — разбор по главам, по одному бюро за раз</span>
+            </span>
+            <span class="vp-badge">▶ Смотреть</span>
+          </div>
         </div>
         <div class="step-locked-note">Этот шаг лучше проходить после шага 1.</div>
         <button class="step-done-btn" type="button" data-done-step="bki">☐ Отметить шаг выполненным</button>
@@ -615,6 +632,7 @@
     <div class="btn-row" style="margin:10px 0 4px">
       <button class="btn btn-outline hidden" type="button" data-video="fssp" style="min-height:44px">▶ Видео: проверка ФССП</button>
       <button class="btn btn-outline hidden" type="button" data-video="bki" style="min-height:44px">▶ Видео: список бюро и отчёты БКИ</button>
+      <button class="btn btn-outline hidden" type="button" data-video="bki_report" style="min-height:44px">▶ Видео: как читать отчёты БКИ</button>
     </div>
 
     <div class="doc-types" id="doc-types">
@@ -827,11 +845,13 @@
       <button class="modal-close" type="button" data-close="video-modal">✕</button>
     </div>
     <div class="modal-body">
-      <div class="video-wrap">
+      <div class="video-wrap" id="video-wrap">
         <iframe id="video-frame" src="" title="Видео-инструкция" frameborder="0"
           allow="clipboard-write; autoplay" allowfullscreen
           style="position:absolute; inset:0; width:100%; height:100%; border-radius:10px"></iframe>
+        <div id="video-kinescope" class="hidden"></div>
       </div>
+      <p class="hint hidden" id="video-modal-note" style="margin-top:10px"></p>
       <div class="btn-row" style="margin-top:12px">
         <button class="btn btn-primary" type="button" id="video-upload-cta"
           style="min-height:48px">Готово — загрузить документы на проверку</button>
@@ -929,6 +949,14 @@
       </span>
       <span class="vp-badge">▶ Смотреть</span>
     </div>
+    <div class="video-preview hidden" id="guide-video-2" role="button" tabindex="0" aria-label="Смотреть видео: как читать справки из БКИ">
+      <span class="vp-thumb"></span>
+      <span class="vp-text">
+        <span class="vp-title">Видео: как читать справки из БКИ</span>
+        <span class="vp-sub">Когда отчёты получены — разбор по главам, по одному бюро за раз</span>
+      </span>
+      <span class="vp-badge">▶ Смотреть</span>
+    </div>
     <div id="guide-body"></div>
     <div class="btn-row" style="margin-top:18px">
       <button class="btn btn-secondary" type="button" id="guide-upload">Загрузить результат на проверку</button>
@@ -943,7 +971,24 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.11
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.12
+   (v0.6.12 от 2026-08-25: встроено видео 2б «Как читать справки из БКИ»
+    на Kinescope — третий ключ bki_report в VIDEO_GUIDES; показывается
+    внутри гайд-слоя БКИ (модалка гайда, Green шаг 2, блок «Проверьте
+    основу сами», экран загрузки, бургер-меню) — по карте файла 24 гайд 20
+    универсален для всех маршрутов; отдельного блока на экране результата
+    нет (принцип «один маршрут — один следующий шаг»).
+    Плеер: Kinescope IFrame API (player.kinescope.io/latest/iframe.player.js),
+    без автоплея (бренд-гайд v2.0 §10); при недоступности API — фолбэк
+    на обычный embed-iframe. Горизонтальный формат 16:9 на всех экранах
+    (класс is-horizontal), RuTube-ролики остаются вертикальными.
+    Телеметрия через существующий trackStep: video_{key}_opened для всех
+    видео + video_bki_report_started (первый Play) и
+    video_bki_report_completed (Ended или ≥90% по TimeUpdate).
+    Сводка просмотров уходит с заявкой полем video_views (collectMeta).
+    Примечание под плеером 2б: разобраны 4 крупных бюро, список бюро
+    клиента по ответу Госуслуг может отличаться (синхронизация с гайдом 20).
+    Маршрутизация, вопросы, тексты результатов и CTA НЕ менялись.)
    (правки владельца от 2026-07-03: помощь под вопросом и нейтральная иконка;
     Q6-E расширен «закрыли, но причину не знаю»; пояснение к доходу;
     Q12 «ещё одна квартира» без внутренних букв; контакты ПОСЛЕ результата
@@ -1015,7 +1060,27 @@ const TG_BOT = 'npd_service_bot'; // бот №4 на поллинге (v2.4), �
 
 const VIDEO_GUIDES = {
   fssp:'https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og',
-  bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw'
+  bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw',
+  /* v0.6.12: видео 2б «Как читать справки из БКИ» — Kinescope, embed-фолбэк */
+  bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg'
+};
+/* v0.6.12: видео на Kinescope — открываются через IFrame API (события
+   started/completed), при недоступности API — обычный embed-iframe выше */
+const KINESCOPE_VIDEOS = {
+  bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg'
+};
+const VIDEO_TITLES = {
+  fssp:'Видео: проверка ФССП с телефона',
+  bki:'Видео: как получить БКИ с телефона',
+  bki_report:'Видео: как читать справки из БКИ'
+};
+/* Горизонтальные ролики (16:9 на всех экранах); остальные — вертикальные */
+const VIDEO_HORIZONTAL = { bki_report:true };
+const VIDEO_NOTES = {
+  bki_report:'В плеере есть главы — по одной на каждое бюро, можно смотреть только те, ' +
+    'из которых у вас есть отчёты. В видео разобраны отчёты четырёх крупных бюро; ' +
+    'ваш список бюро из ответа Госуслуг может отличаться — проверяйте отчёты ' +
+    'из всех бюро вашего списка.'
 };
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
@@ -1260,7 +1325,9 @@ function collectMeta(){
     reasons: r.reasons || [],
     answers: STATE.answers,
     url: location.href,
-    ua: navigator.userAgent
+    ua: navigator.userAgent,
+    /* v0.6.12: сводка просмотров видео — менеджер видит, что клиент уже смотрел */
+    video_views: VIDEO_TRACK
   };
 }
 
@@ -1657,11 +1724,11 @@ $('menu-about').addEventListener('click', () => {
   showScreen('screen-start');
   const ab = $('about-service'); if(ab){ ab.open = true; ab.scrollIntoView({behavior:'smooth'}); }
 });
-['fssp','bki'].forEach(key => {
+['fssp','bki','bki_report'].forEach(key => {
   const item = $('menu-video-' + key);
-  if(VIDEO_GUIDES[key]){
+  if(item && VIDEO_GUIDES[key]){
     item.classList.remove('hidden');
-    item.addEventListener('click', () => { $('menu-drop').classList.remove('is-open'); openVideoModal(key); });
+    item.addEventListener('click', () => { $('menu-drop').classList.remove('is-open'); openVideoModal(key, 'menu'); });
   }
 });
 
@@ -2232,6 +2299,14 @@ function renderResultGuides(result){
       </span>
       <span class="vp-badge">▶ Смотреть</span>
     </div>
+    <div class="video-preview" data-rg="bki_report" role="button" tabindex="0">
+      <span class="vp-thumb"></span>
+      <span class="vp-text">
+        <span class="vp-title">Как читать справки из БКИ</span>
+        <span class="vp-sub">Когда отчёты уже на руках — разбор по главам, по одному бюро за раз</span>
+      </span>
+      <span class="vp-badge">▶ Смотреть</span>
+    </div>
     <div class="btn-row" style="margin:6px 0 4px">
       <button class="btn btn-outline" type="button" data-rg-guide="bki">Открыть текстовый гайд БКИ</button>
     </div>
@@ -2241,7 +2316,7 @@ function renderResultGuides(result){
   rg.querySelectorAll('[data-rg]').forEach(el => {
     const key = el.dataset.rg;
     if(!VIDEO_GUIDES[key]){ el.classList.add('hidden'); return; }
-    const open = () => openVideoModal(key);
+    const open = () => openVideoModal(key, 'result');
     el.addEventListener('click', open);
     el.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
   });
@@ -2462,7 +2537,12 @@ function closeOverlay(id){
   const m = $(id);
   if(!m) return;
   m.classList.remove('is-open');
-  if(id === 'video-modal') $('video-frame').src = '';
+  if(id === 'video-modal'){
+    $('video-frame').src = '';
+    /* v0.6.12: остановить и убрать Kinescope-плеер */
+    currentVideoKey = null;
+    destroyKinescopePlayer();
+  }
 }
 document.querySelectorAll('[data-close]').forEach(btn => {
   btn.addEventListener('click', () => closeOverlay(btn.dataset.close));
@@ -2481,20 +2561,163 @@ document.getElementById('video-upload-cta').addEventListener('click', () => {
   closeOverlay('video-modal');
   goTo('upload');
 });
-function openVideoModal(key){
-  $('video-modal-title').textContent = key === 'fssp'
-    ? 'Видео: проверка ФССП с телефона' : 'Видео: как получить БКИ с телефона';
-  $('video-frame').src = VIDEO_GUIDES[key];
+
+/* ============== v0.6.12: ТЕЛЕМЕТРИЯ ВИДЕО ============== */
+/* Сводка просмотров за визит: key → {opened, started, completed, max_percent}.
+   Каждое событие уходит в таблицу воронки через trackStep один раз за визит:
+   video_{key}_opened / _started / _completed. Сводка целиком уходит
+   с заявкой в поле video_views (collectMeta). */
+const VIDEO_TRACK = {};
+function videoTrackState(key){
+  return VIDEO_TRACK[key] || (VIDEO_TRACK[key] = {
+    opened:false, started:false, completed:false, max_percent:0
+  });
+}
+function trackVideoEvent(key, phase, extra){
+  const st = videoTrackState(key);
+  if(st[phase]) return;
+  st[phase] = true;
+  trackStep('video_' + key + '_' + phase, extra || '');
+}
+
+/* ============== v0.6.12: KINESCOPE IFRAME API ============== */
+let currentVideoKey = null;
+let kinescopePlayer = null;
+let kinescopeApiPromise = null;
+
+function loadKinescopeApi(){
+  if(window.Kinescope && window.Kinescope.IframePlayer){
+    return Promise.resolve(window.Kinescope.IframePlayer);
+  }
+  if(kinescopeApiPromise) return kinescopeApiPromise;
+  kinescopeApiPromise = new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (ok, val) => {
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      ok ? resolve(val) : reject(val);
+    };
+    const timer = setTimeout(() => finish(false, new Error('kinescope api timeout')), 4000);
+    const check = () => {
+      if(window.Kinescope && window.Kinescope.IframePlayer) finish(true, window.Kinescope.IframePlayer);
+      else if(!settled) setTimeout(check, 120);
+    };
+    const s = document.createElement('script');
+    s.src = 'https://player.kinescope.io/latest/iframe.player.js';
+    s.async = true;
+    s.onload = check;
+    s.onerror = () => finish(false, new Error('kinescope api load error'));
+    document.head.appendChild(s);
+  });
+  /* при неудаче позволяем повторить попытку при следующем открытии */
+  kinescopeApiPromise.catch(() => { kinescopeApiPromise = null; });
+  return kinescopeApiPromise;
+}
+
+function destroyKinescopePlayer(){
+  const p = kinescopePlayer;
+  kinescopePlayer = null;
+  if(p){ try{ if(typeof p.destroy === 'function') p.destroy(); }catch(e){} }
+  const box = $('video-kinescope');
+  if(box){ box.innerHTML = ''; box.classList.add('hidden'); }
+}
+
+/* Фолбэк: обычный embed-iframe Kinescope — видео работает,
+   но события started/completed недоступны */
+function openKinescopeFallback(key){
+  destroyKinescopePlayer();
+  const frame = $('video-frame');
+  frame.classList.remove('hidden');
+  frame.src = VIDEO_GUIDES[key];
+}
+
+function attachKinescopeTracking(key, player){
+  const st = videoTrackState(key);
+  try{
+    player.on(player.Events.Playing, () => trackVideoEvent(key, 'started'));
+    player.on(player.Events.Ended, () => {
+      st.max_percent = 100;
+      trackVideoEvent(key, 'completed');
+    });
+    player.on(player.Events.TimeUpdate, (ev) => {
+      const d = (ev && ev.data) ? ev.data : {};
+      let pct = null;
+      if(typeof d.percent === 'number') pct = d.percent <= 1 ? d.percent * 100 : d.percent;
+      if(pct === null) return;
+      if(pct > st.max_percent) st.max_percent = Math.round(pct);
+      /* «досмотрен» = 90%+ — финальные титры не должны ломать метрику */
+      if(pct >= 90) trackVideoEvent(key, 'completed');
+    });
+  }catch(e){ /* события недоступны — остаётся opened */ }
+}
+
+function mountKinescopePlayer(key){
+  const frame = $('video-frame');
+  frame.classList.add('hidden');
+  frame.src = '';
+  const box = $('video-kinescope');
+  box.classList.remove('hidden');
+  box.innerHTML = '<div id="video-kinescope-inner"></div>';
+  loadKinescopeApi()
+    .then(api => {
+      if(currentVideoKey !== key || !document.getElementById('video-kinescope-inner')) return;
+      return api.create('video-kinescope-inner', {
+        url: KINESCOPE_VIDEOS[key],
+        size: { width:'100%', height:'100%' }
+      }).then(player => {
+        if(currentVideoKey !== key){
+          try{ if(player && typeof player.destroy === 'function') player.destroy(); }catch(e){}
+          return;
+        }
+        kinescopePlayer = player;
+        attachKinescopeTracking(key, player);
+      });
+    })
+    .catch(() => {
+      if(currentVideoKey === key) openKinescopeFallback(key);
+    });
+}
+
+function openVideoModal(key, source){
+  currentVideoKey = key;
+  $('video-modal-title').textContent = VIDEO_TITLES[key] || 'Видео-инструкция';
+  /* примечание под плеером (для видео 2б — про главы и список бюро) */
+  const note = $('video-modal-note');
+  if(note){
+    if(VIDEO_NOTES[key]){ note.textContent = VIDEO_NOTES[key]; note.classList.remove('hidden'); }
+    else { note.textContent = ''; note.classList.add('hidden'); }
+  }
+  /* формат: горизонтальный скринкаст 16:9 или вертикальный ролик */
+  const wrap = $('video-wrap');
+  if(wrap) wrap.classList.toggle('is-horizontal', !!VIDEO_HORIZONTAL[key]);
+  destroyKinescopePlayer();
+  if(KINESCOPE_VIDEOS[key]){
+    mountKinescopePlayer(key);
+  } else {
+    const frame = $('video-frame');
+    frame.classList.remove('hidden');
+    frame.src = VIDEO_GUIDES[key];
+  }
   $('video-modal').classList.add('is-open');
+  trackVideoEvent(key, 'opened', source || '');
+}
+
+/* с какого экрана открыто видео — для extra в video_*_opened */
+function videoSourceOf(el){
+  const sec = el.closest('section');
+  if(sec && sec.id === 'screen-self-service') return 'self_service';
+  if(sec && sec.id === 'screen-upload') return 'upload';
+  return 'page';
 }
 document.querySelectorAll('[data-video]').forEach(btn => {
   const key = btn.dataset.video;
   if(VIDEO_GUIDES[key]){
     btn.classList.remove('hidden');
-    btn.addEventListener('click', () => openVideoModal(key));
+    btn.addEventListener('click', () => openVideoModal(key, videoSourceOf(btn)));
     /* v0.4.4: доступность — открытие с клавиатуры */
     btn.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openVideoModal(key); }
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openVideoModal(key, videoSourceOf(btn)); }
     });
   }
 });
@@ -2839,13 +3062,27 @@ function openGuide(key){
   } else {
     gv.classList.add('hidden');
   }
+  /* v0.6.12: в гайде БКИ — второе видео «Как читать справки из БКИ» (часть 2) */
+  const gv2 = $('guide-video-2');
+  if(gv2){
+    if(key === 'bki' && VIDEO_GUIDES['bki_report']) gv2.classList.remove('hidden');
+    else gv2.classList.add('hidden');
+  }
   $('guide-modal').classList.add('is-open');
 }
 $('guide-video').addEventListener('click', () => {
   const key = $('guide-video').dataset.videokey;
   if(!key || !VIDEO_GUIDES[key]) return;
-  openVideoModal(key);
+  openVideoModal(key, 'guide');
 });
+/* v0.6.12: второе видео в гайде БКИ */
+if($('guide-video-2')){
+  const openGv2 = () => { if(VIDEO_GUIDES['bki_report']) openVideoModal('bki_report', 'guide'); };
+  $('guide-video-2').addEventListener('click', openGv2);
+  $('guide-video-2').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openGv2(); }
+  });
+}
 function closeGuide(){
   $('guide-modal').classList.remove('is-open');
 }
