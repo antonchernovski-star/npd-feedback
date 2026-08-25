@@ -971,7 +971,14 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.13
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.14
+   (v0.6.14 от 2026-08-25: видео 1 «Проверка ФССП» заменено новой версией —
+    перезаписанный скринкаст с озвучкой по сценарию 31 (Яндекс TTS),
+    хостинг RuTube → Kinescope (ID rEE5zsdJj413N2kGsGYhyT, вертикальное
+    9:16 — is-horizontal не ставится). Через Kinescope IFrame API у ФССП
+    теперь работают события video_fssp_started / video_fssp_completed —
+    паттерн реестра тегов v1.1 (раздел 7.1). Прежний RuTube-embed сохранён
+    в комментарии VIDEO_GUIDES. Другие видео и логика не менялись.)
    (v0.6.13 от 2026-08-25, хотфикс телеметрии: процент просмотра для
     video_bki_report_completed считается из currentTime/duration события
     TimeUpdate; поле percent у Kinescope — целые 0–100, и нормализация
@@ -1064,7 +1071,10 @@ const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzHsCUP0Ye66FZ6UHveB
 const TG_BOT = 'npd_service_bot'; // бот №4 на поллинге (v2.4), включён 2026-07-07 по решению владельца
 
 const VIDEO_GUIDES = {
-  fssp:'https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og',
+  /* v0.6.14: видео 1 ФССП перезаписано (озвучка Яндекс, монтаж по сценарию 31)
+     и переехало с RuTube на Kinescope. Прежний RuTube-embed:
+     https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og */
+  fssp:'https://kinescope.io/embed/rEE5zsdJj413N2kGsGYhyT',
   bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw',
   /* v0.6.12: видео 2б «Как читать справки из БКИ» — Kinescope, embed-фолбэк */
   bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg'
@@ -1072,6 +1082,7 @@ const VIDEO_GUIDES = {
 /* v0.6.12: видео на Kinescope — открываются через IFrame API (события
    started/completed), при недоступности API — обычный embed-iframe выше */
 const KINESCOPE_VIDEOS = {
+  fssp:'https://kinescope.io/rEE5zsdJj413N2kGsGYhyT',
   bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg'
 };
 const VIDEO_TITLES = {
