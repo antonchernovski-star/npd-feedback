@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>НАВИГАТОР ПО ДОЛГАМ — предварительная диагностика</title>
+<!-- v0.6.15: ранний хендшейк с видеохостингом — ускоряет первое открытие плеера -->
+<link rel="preconnect" href="https://player.kinescope.io" crossorigin>
+<link rel="preconnect" href="https://kinescope.io" crossorigin>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%2015%20L29%203%20L14%2018%20Z%22%20fill%3D%22%23C96A3B%22/%3E%3Cpath%20d%3D%22M14%2018%20L29%203%20L19%2028%20Z%22%20fill%3D%22%23A0522D%22/%3E%3Cpath%20d%3D%22M14%2018%20L14.5%2024%20L17.5%2021.2%20Z%22%20fill%3D%22%237A3E22%22/%3E%3C/svg%3E">
 <style>
   :root{
@@ -212,6 +215,21 @@
   #video-kinescope{position:absolute; inset:0; width:100%; height:100%;
     border-radius:10px; overflow:hidden}
   #video-kinescope iframe{width:100%; height:100%; border:0}
+  /* v0.6.15: слой загрузки видео — мгновенный отклик вместо пустого окна.
+     Плеер Kinescope может подниматься долго; без этого слоя человек видит
+     белый прямоугольник и думает, что сломано */
+  #video-loading{position:absolute; inset:0; z-index:3; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; background:#F7F5F3;
+    border-radius:10px; text-align:center; padding:20px}
+  .vl-spin{width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+    border:3px solid #E4DED8; border-top-color:#C96A3B; animation:vlspin .9s linear infinite}
+  @keyframes vlspin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){ .vl-spin{animation:none} }
+  .vl-text{font-size:15px; color:#5E5E5E}
+  .vl-slow{font-size:13.5px; color:#5E5E5E; max-width:360px; line-height:1.5; display:none}
+  #video-loading.is-slow .vl-slow{display:block}
+  #video-loading #video-retry{display:none}
+  #video-loading.is-slow #video-retry{display:inline-block}
 
   .help-details{margin-top:14px; border:1px solid var(--border);
     border-radius:10px; background:#fbf9f7; overflow:hidden}
@@ -850,6 +868,14 @@
           allow="clipboard-write; autoplay" allowfullscreen
           style="position:absolute; inset:0; width:100%; height:100%; border-radius:10px"></iframe>
         <div id="video-kinescope" class="hidden"></div>
+        <div id="video-loading" class="hidden" aria-live="polite">
+          <div class="vl-spin" aria-hidden="true"></div>
+          <div class="vl-text">Видео загружается…</div>
+          <div class="vl-slow">Загрузка идёт дольше обычного. Проверьте
+            интернет-соединение — или попробуйте ещё раз.</div>
+          <button class="btn btn-outline" type="button" id="video-retry"
+            style="min-height:44px">Попробовать ещё раз</button>
+        </div>
       </div>
       <p class="hint hidden" id="video-modal-note" style="margin-top:10px"></p>
       <div class="btn-row" style="margin-top:12px">
@@ -971,7 +997,17 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.14
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.15
+   (v0.6.15 от 2026-08-25: борьба с медленным стартом видеоплеера —
+    по жалобе владельца плеер Kinescope поднимался 20–30 сек на пустом
+    белом окне. Три меры: (1) preconnect к kinescope.io и
+    player.kinescope.io в head; (2) тихая предзагрузка iframe.player.js
+    через 1,5 сек после загрузки страницы; (3) слой «Видео загружается…»
+    в бренд-стиле поверх плеера — показывается мгновенно при открытии
+    модалки, скрывается по load iframe плеера (или create/фолбэк);
+    через 12 сек — подсказка про соединение и кнопка «Попробовать ещё
+    раз» + служебное событие video_{key}_slow_load в воронку.
+    Работает для всех видео: Kinescope и RuTube.)
    (v0.6.14 от 2026-08-25: видео 1 «Проверка ФССП» заменено новой версией —
     перезаписанный скринкаст с озвучкой по сценарию 31 (Яндекс TTS),
     хостинг RuTube → Kinescope (ID rEE5zsdJj413N2kGsGYhyT, вертикальное
@@ -2558,6 +2594,7 @@ function closeOverlay(id){
     /* v0.6.12: остановить и убрать Kinescope-плеер */
     currentVideoKey = null;
     destroyKinescopePlayer();
+    hideVideoLoading(); /* v0.6.15 */
   }
 }
 document.querySelectorAll('[data-close]').forEach(btn => {
@@ -2595,6 +2632,57 @@ function trackVideoEvent(key, phase, extra){
   st[phase] = true;
   trackStep('video_' + key + '_' + phase, extra || '');
 }
+
+/* ============== v0.6.15: СЛОЙ ЗАГРУЗКИ ВИДЕО ============== */
+/* Показывается мгновенно при открытии модалки, скрывается, когда документ
+   плеера реально загрузился. Через 12 сек — подсказка и кнопка «ещё раз». */
+let videoSlowTimer = null;
+function showVideoLoading(){
+  const vl = $('video-loading');
+  if(!vl) return;
+  vl.classList.remove('hidden', 'is-slow');
+  clearTimeout(videoSlowTimer);
+  videoSlowTimer = setTimeout(() => {
+    vl.classList.add('is-slow');
+    if(currentVideoKey) trackVideoEvent(currentVideoKey, 'slow_load');
+  }, 12000);
+}
+function hideVideoLoading(){
+  const vl = $('video-loading');
+  if(!vl) return;
+  vl.classList.add('hidden');
+  vl.classList.remove('is-slow');
+  clearTimeout(videoSlowTimer);
+  videoSlowTimer = null;
+}
+/* скрыть лоадер, как только iframe плеера появился в контейнере и загрузился */
+function watchKinescopeIframe(key){
+  const box = $('video-kinescope');
+  if(!box) return;
+  const hook = (ifr) => {
+    if(!ifr || ifr.dataset.vlHooked) return;
+    ifr.dataset.vlHooked = '1';
+    ifr.addEventListener('load', () => {
+      if(currentVideoKey === key) setTimeout(hideVideoLoading, 250);
+    });
+  };
+  const existing = box.querySelector('iframe');
+  if(existing){ hook(existing); return; }
+  const mo = new MutationObserver(() => {
+    const ifr = box.querySelector('iframe');
+    if(ifr){ hook(ifr); mo.disconnect(); }
+  });
+  mo.observe(box, { childList: true, subtree: true });
+  setTimeout(() => mo.disconnect(), 30000);
+}
+if($('video-retry')) $('video-retry').addEventListener('click', () => {
+  if(currentVideoKey) openVideoModal(currentVideoKey, 'retry');
+});
+/* RuTube/фолбэк: обычный iframe — лоадер убираем по его load */
+if($('video-frame')) $('video-frame').addEventListener('load', () => {
+  const src = $('video-frame').getAttribute('src') || '';
+  if(src) setTimeout(hideVideoLoading, 250);
+});
 
 /* ============== v0.6.12: KINESCOPE IFRAME API ============== */
 let currentVideoKey = null;
@@ -2683,6 +2771,7 @@ function mountKinescopePlayer(key){
   const box = $('video-kinescope');
   box.classList.remove('hidden');
   box.innerHTML = '<div id="video-kinescope-inner"></div>';
+  watchKinescopeIframe(key); /* v0.6.15: лоадер уйдёт по load iframe плеера */
   loadKinescopeApi()
     .then(api => {
       if(currentVideoKey !== key || !document.getElementById('video-kinescope-inner')) return;
@@ -2696,6 +2785,7 @@ function mountKinescopePlayer(key){
         }
         kinescopePlayer = player;
         attachKinescopeTracking(key, player);
+        hideVideoLoading(); /* v0.6.15: страховка — плеер точно готов */
       });
     })
     .catch(() => {
@@ -2716,6 +2806,7 @@ function openVideoModal(key, source){
   const wrap = $('video-wrap');
   if(wrap) wrap.classList.toggle('is-horizontal', !!VIDEO_HORIZONTAL[key]);
   destroyKinescopePlayer();
+  showVideoLoading(); /* v0.6.15: мгновенный отклик — до любой сетевой работы */
   if(KINESCOPE_VIDEOS[key]){
     mountKinescopePlayer(key);
   } else {
@@ -3160,6 +3251,12 @@ $('guide-modal').addEventListener('click', (e) => {
 showScreen('screen-start');
 renderQuestion();
 updateUploadBtn();
+
+/* v0.6.15: тихая предзагрузка Kinescope API после старта страницы —
+   к моменту клика по видео скрипт плеера уже в кэше */
+window.addEventListener('load', () => {
+  setTimeout(() => { try{ loadKinescopeApi().catch(() => {}); }catch(e){} }, 1500);
+});
 
 /* v0.6.4: внешние ссылки (ФССП, Госуслуги) на десктопе — отдельным окном,
    Навигатор остаётся виден. На мобильных — обычная новая вкладка. */
