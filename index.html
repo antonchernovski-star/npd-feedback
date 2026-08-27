@@ -617,6 +617,14 @@
            по месту жительства.</p>
         <div class="btn-row">
           <button class="btn btn-outline" type="button" data-guide="mfc">Открыть гайд</button>
+          <div class="video-preview hidden" data-video="mfc_application" role="button" tabindex="0" aria-label="Смотреть видео: как заполнить заявление для МФЦ">
+            <span class="vp-thumb"></span>
+            <span class="vp-text">
+              <span class="vp-title">Видео: как заполнить заявление для МФЦ</span>
+              <span class="vp-sub">Разбор формы по блокам — основания, банки, приложения, подача</span>
+            </span>
+            <span class="vp-badge">▶ Смотреть</span>
+          </div>
         </div>
         <div class="step-locked-note">Этот шаг лучше проходить после шагов 1, 2 и 3.</div>
         <div class="step-final-note">Это финальный шаг. Не начинайте с него.</div>
@@ -1006,7 +1014,16 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.16
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.17
+   (v0.6.17 от 2026-08-26: добавлено видео «Заявление ВБФЛ» (В-1.4) —
+    Kinescope ID wJMhJt1nr2DQsLbtPfVPNq, горизонтальное 16:9, ключ
+    mfc_application (канон реестра v1.1 §7.1). Точки показа — СТРОГО
+    Green-путь, как у гайда 22 (файл 24: не показывать вне Green):
+    карточка шага 4 self-service + модалка гайда «Заявление и подача
+    в МФЦ». В бургер-меню, блок «Проверьте основу сами» и Yellow-модалку
+    сознательно НЕ добавлено. Примечание под плеером — гейт-напоминание
+    про первые три шага. События video_mfc_application_* активированы.
+    Скрипты озвучки видео 3 и 4 прогнаны по файлу 08 — нарушений нет.)
    (v0.6.16 от 2026-08-26: добавлено видео 3 «Список кредиторов» (В-1.3) —
     Kinescope ID 5UqG2XcpYzVaSiXdUQS78h, горизонтальное 16:9. Ключ видео
     creditor_list (канон реестра тегов v1.1 §7.1; ключ гайда creditors —
@@ -1134,36 +1151,45 @@ const VIDEO_GUIDES = {
   /* v0.6.12: видео 2б «Как читать справки из БКИ» — Kinescope, embed-фолбэк */
   bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg',
   /* v0.6.16: видео 3 «Список кредиторов» (В-1.3) — ключ creditor_list по реестру тегов v1.1 §7.1 */
-  creditor_list:'https://kinescope.io/embed/5UqG2XcpYzVaSiXdUQS78h'
+  creditor_list:'https://kinescope.io/embed/5UqG2XcpYzVaSiXdUQS78h',
+  /* v0.6.17: видео «Заявление ВБФЛ» (В-1.4) — только Green-путь, как гайд 22 */
+  mfc_application:'https://kinescope.io/embed/wJMhJt1nr2DQsLbtPfVPNq'
 };
 /* v0.6.12: видео на Kinescope — открываются через IFrame API (события
    started/completed), при недоступности API — обычный embed-iframe выше */
 const KINESCOPE_VIDEOS = {
   fssp:'https://kinescope.io/rEE5zsdJj413N2kGsGYhyT',
   bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg',
-  creditor_list:'https://kinescope.io/5UqG2XcpYzVaSiXdUQS78h'
+  creditor_list:'https://kinescope.io/5UqG2XcpYzVaSiXdUQS78h',
+  mfc_application:'https://kinescope.io/wJMhJt1nr2DQsLbtPfVPNq'
 };
 const VIDEO_TITLES = {
   fssp:'Видео: проверка ФССП с телефона',
   bki:'Видео: как получить БКИ с телефона',
   bki_report:'Видео: как читать справки из БКИ',
-  creditor_list:'Видео: как заполнить список кредиторов'
+  creditor_list:'Видео: как заполнить список кредиторов',
+  mfc_application:'Видео: как заполнить заявление для МФЦ'
 };
 /* Горизонтальные ролики (16:9 на всех экранах); остальные — вертикальные */
-const VIDEO_HORIZONTAL = { bki_report:true, creditor_list:true };
+const VIDEO_HORIZONTAL = { bki_report:true, creditor_list:true, mfc_application:true };
 /* v0.6.16: связка гайд → видео (ключи гайдов и видео различаются:
    гайд creditors ↔ видео creditor_list по канону реестра тегов) */
-const GUIDE_VIDEO_KEYS = { fssp:'fssp', bki:'bki', creditors:'creditor_list' };
+const GUIDE_VIDEO_KEYS = { fssp:'fssp', bki:'bki', creditors:'creditor_list', mfc:'mfc_application' };
 const GUIDE_VIDEO_TITLES = {
   fssp:'Видео-гайд: проверка ФССП с телефона',
   bki:'Видео-гайд: как получить кредитную историю',
-  creditors:'Видео-гайд: как заполнить список кредиторов'
+  creditors:'Видео-гайд: как заполнить список кредиторов',
+  mfc:'Видео-гайд: как заполнить заявление для МФЦ'
 };
 const VIDEO_NOTES = {
   bki_report:'В плеере есть главы — по одной на каждое бюро, можно смотреть только те, ' +
     'из которых у вас есть отчёты. В видео разобраны отчёты четырёх крупных бюро; ' +
     'ваш список бюро из ответа Госуслуг может отличаться — проверяйте отчёты ' +
-    'из всех бюро вашего списка.'
+    'из всех бюро вашего списка.',
+  /* v0.6.17: гейт-напоминание — заявление заполняется после первых трёх шагов */
+  mfc_application:'Заявление — финальный шаг. Заполняйте его после того, как проверены ' +
+    'ФССП, получены отчёты БКИ и подготовлен список кредиторов: данные заявления ' +
+    'должны совпадать со списком.'
 };
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
