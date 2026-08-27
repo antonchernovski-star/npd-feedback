@@ -414,6 +414,7 @@
     <button type="button" id="menu-video-fssp" class="hidden">▶ Видео: проверка ФССП</button>
     <button type="button" id="menu-video-bki" class="hidden">▶ Видео: как получить БКИ</button>
     <button type="button" id="menu-video-bki_report" class="hidden">▶ Видео: как читать отчёты БКИ</button>
+    <button type="button" id="menu-video-creditor_list" class="hidden">▶ Видео: список кредиторов</button>
     <button type="button" id="menu-project">О проекте</button>
     <button type="button" id="menu-about">Как работает сервис</button>
   </div>
@@ -596,6 +597,14 @@
            Если кредитор не указан, долг перед ним может не списаться.</p>
         <div class="btn-row">
           <button class="btn btn-outline" type="button" data-guide="creditors">Открыть гайд</button>
+          <div class="video-preview hidden" data-video="creditor_list" role="button" tabindex="0" aria-label="Смотреть видео: как заполнить список кредиторов">
+            <span class="vp-thumb"></span>
+            <span class="vp-text">
+              <span class="vp-title">Видео: как заполнить список кредиторов</span>
+              <span class="vp-sub">Сводим ФССП, БКИ и свои документы в один список — по шагам</span>
+            </span>
+            <span class="vp-badge">▶ Смотреть</span>
+          </div>
         </div>
         <div class="step-locked-note">Этот шаг лучше проходить после шагов 1 и 2.</div>
         <button class="step-done-btn" type="button" data-done-step="creditors">☐ Отметить шаг выполненным</button>
@@ -997,7 +1006,17 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.15
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.16
+   (v0.6.16 от 2026-08-26: добавлено видео 3 «Список кредиторов» (В-1.3) —
+    Kinescope ID 5UqG2XcpYzVaSiXdUQS78h, горизонтальное 16:9. Ключ видео
+    creditor_list (канон реестра тегов v1.1 §7.1; ключ гайда creditors —
+    связка через GUIDE_VIDEO_KEYS). Точки показа по карте файла 24:
+    карточка шага 3 Green self-service, модалка гайда «Список кредиторов»,
+    бургер-меню. В блок «Проверьте основу сами» и Yellow-модалку гайдов
+    сознательно НЕ добавлено: гайд 21 не показывается вне Green-пути
+    без причины (решение v0.2.1 и карта 24). События
+    video_creditor_list_opened/started/completed/slow_load активированы.
+    Заголовки видео в гайд-модалке переведены с тернарника на словарь.)
    (v0.6.15 от 2026-08-25: борьба с медленным стартом видеоплеера —
     по жалобе владельца плеер Kinescope поднимался 20–30 сек на пустом
     белом окне. Три меры: (1) preconnect к kinescope.io и
@@ -1113,21 +1132,33 @@ const VIDEO_GUIDES = {
   fssp:'https://kinescope.io/embed/rEE5zsdJj413N2kGsGYhyT',
   bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw',
   /* v0.6.12: видео 2б «Как читать справки из БКИ» — Kinescope, embed-фолбэк */
-  bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg'
+  bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg',
+  /* v0.6.16: видео 3 «Список кредиторов» (В-1.3) — ключ creditor_list по реестру тегов v1.1 §7.1 */
+  creditor_list:'https://kinescope.io/embed/5UqG2XcpYzVaSiXdUQS78h'
 };
 /* v0.6.12: видео на Kinescope — открываются через IFrame API (события
    started/completed), при недоступности API — обычный embed-iframe выше */
 const KINESCOPE_VIDEOS = {
   fssp:'https://kinescope.io/rEE5zsdJj413N2kGsGYhyT',
-  bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg'
+  bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg',
+  creditor_list:'https://kinescope.io/5UqG2XcpYzVaSiXdUQS78h'
 };
 const VIDEO_TITLES = {
   fssp:'Видео: проверка ФССП с телефона',
   bki:'Видео: как получить БКИ с телефона',
-  bki_report:'Видео: как читать справки из БКИ'
+  bki_report:'Видео: как читать справки из БКИ',
+  creditor_list:'Видео: как заполнить список кредиторов'
 };
 /* Горизонтальные ролики (16:9 на всех экранах); остальные — вертикальные */
-const VIDEO_HORIZONTAL = { bki_report:true };
+const VIDEO_HORIZONTAL = { bki_report:true, creditor_list:true };
+/* v0.6.16: связка гайд → видео (ключи гайдов и видео различаются:
+   гайд creditors ↔ видео creditor_list по канону реестра тегов) */
+const GUIDE_VIDEO_KEYS = { fssp:'fssp', bki:'bki', creditors:'creditor_list' };
+const GUIDE_VIDEO_TITLES = {
+  fssp:'Видео-гайд: проверка ФССП с телефона',
+  bki:'Видео-гайд: как получить кредитную историю',
+  creditors:'Видео-гайд: как заполнить список кредиторов'
+};
 const VIDEO_NOTES = {
   bki_report:'В плеере есть главы — по одной на каждое бюро, можно смотреть только те, ' +
     'из которых у вас есть отчёты. В видео разобраны отчёты четырёх крупных бюро; ' +
@@ -1776,7 +1807,7 @@ $('menu-about').addEventListener('click', () => {
   showScreen('screen-start');
   const ab = $('about-service'); if(ab){ ab.open = true; ab.scrollIntoView({behavior:'smooth'}); }
 });
-['fssp','bki','bki_report'].forEach(key => {
+['fssp','bki','bki_report','creditor_list'].forEach(key => {
   const item = $('menu-video-' + key);
   if(item && VIDEO_GUIDES[key]){
     item.classList.remove('hidden');
@@ -3166,14 +3197,14 @@ function openGuide(key){
   if(!g) return;
   $('guide-title').textContent = g.title;
   $('guide-body').innerHTML = g.body;
-  /* v0.4.1: кнопка видео внутри гайда, если ссылка задана */
+  /* v0.4.1: кнопка видео внутри гайда, если ссылка задана
+     (v0.6.16: связка гайд→видео через GUIDE_VIDEO_KEYS, заголовки — словарь) */
   const gv = $('guide-video');
-  if(VIDEO_GUIDES[key]){
+  const vkey = GUIDE_VIDEO_KEYS[key];
+  if(vkey && VIDEO_GUIDES[vkey]){
     gv.classList.remove('hidden');
-    gv.dataset.videokey = key;
-    $('guide-video-title').textContent = key === 'fssp'
-      ? 'Видео-гайд: проверка ФССП с телефона'
-      : 'Видео-гайд: как получить кредитную историю';
+    gv.dataset.videokey = vkey;
+    $('guide-video-title').textContent = GUIDE_VIDEO_TITLES[key] || 'Видео-гайд с телефона';
   } else {
     gv.classList.add('hidden');
   }
