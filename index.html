@@ -202,6 +202,10 @@
 
   /* v0.4.2: адаптивный видеоплеер — десктоп 16:9, мобильные 9:16 */
   #video-modal .modal{max-width:760px}
+  /* v0.6.18 (хотфикс): видео-модалка всегда поверх гайд-модалки. Обе — .modal-overlay
+     с z-index:50, а гайд стоит в DOM позже, поэтому видео, открытое кнопкой
+     «Смотреть» внутри гайда, оказывалось ПОД гайдом (найдено автотестом v0.6.18) */
+  #video-modal{z-index:60}
   .video-wrap{position:relative; padding-top:56.25%}
   @media (max-width:640px){
     #video-modal .modal{max-width:96vw}
@@ -212,6 +216,14 @@
   @media (max-width:640px){
     .video-wrap.is-horizontal{padding-top:56.25%}
   }
+  /* v0.6.18: формат 4:3 (видео 2а «Список бюро / ЦККИ» на Kinescope) — на всех экранах.
+     Модалка для 4:3 чуть уже, чтобы плеер помещался по высоте на ноутбуках;
+     :has() — прогрессивное улучшение, старые браузеры просто оставят 760px */
+  .video-wrap.is-4x3{padding-top:75%}
+  @media (max-width:640px){
+    .video-wrap.is-4x3{padding-top:75%}
+  }
+  #video-modal .modal:has(.video-wrap.is-4x3){max-width:700px}
   #video-kinescope{position:absolute; inset:0; width:100%; height:100%;
     border-radius:10px; overflow:hidden}
   #video-kinescope iframe{width:100%; height:100%; border:0}
@@ -412,7 +424,7 @@
   <div id="menu-drop">
     <button type="button" id="menu-restart">↺ Начать диагностику заново</button>
     <button type="button" id="menu-video-fssp" class="hidden">▶ Видео: проверка ФССП</button>
-    <button type="button" id="menu-video-bki" class="hidden">▶ Видео: как получить БКИ</button>
+    <button type="button" id="menu-video-bki" class="hidden">▶ Видео: список бюро через Госуслуги</button>
     <button type="button" id="menu-video-bki_report" class="hidden">▶ Видео: как читать отчёты БКИ</button>
     <button type="button" id="menu-video-creditor_list" class="hidden">▶ Видео: список кредиторов</button>
     <button type="button" id="menu-project">О проекте</button>
@@ -573,7 +585,7 @@
             <span class="vp-thumb"></span>
             <span class="vp-text">
               <span class="vp-title">Видео-гайд: как получить кредитную историю</span>
-              <span class="vp-sub">Список бюро через Госуслуги — коротко, с телефона</span>
+              <span class="vp-sub">Список бюро через Госуслуги — коротко и по шагам</span>
             </span>
             <span class="vp-badge">▶ Смотреть</span>
           </div>
@@ -666,7 +678,7 @@
     </div>
     <div class="btn-row" style="margin:10px 0 4px">
       <button class="btn btn-outline hidden" type="button" data-video="fssp" style="min-height:44px">▶ Видео: проверка ФССП</button>
-      <button class="btn btn-outline hidden" type="button" data-video="bki" style="min-height:44px">▶ Видео: список бюро и отчёты БКИ</button>
+      <button class="btn btn-outline hidden" type="button" data-video="bki" style="min-height:44px">▶ Видео: список бюро через Госуслуги</button>
       <button class="btn btn-outline hidden" type="button" data-video="bki_report" style="min-height:44px">▶ Видео: как читать отчёты БКИ</button>
     </div>
 
@@ -1014,7 +1026,24 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.17
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.18
+   (v0.6.18 от 2026-08-31: видео 2а «Список бюро / ЦККИ» переехало с RuTube
+    на Kinescope — ID tLTqW4mFnZonSrSvq5LvW7, формат 4:3 (новый класс
+    is-4x3, padding-top 75% на всех экранах; модалка для 4:3 — 700px через
+    :has(), прогрессивно). Ключ bki без изменений, точки показа те же
+    (гайд 20 универсален для всех маршрутов: блок «Проверьте основу сами»,
+    гайд-модалка БКИ, Green шаг 2, экран загрузки, бургер-меню). Через
+    IFrame API у 2а заработали события video_bki_started / completed —
+    в реестре тегов v1.1 §7.1 строка bki переводится из «только opened»
+    в полный набор. Прежний RuTube-embed сохранён в комментарии
+    VIDEO_GUIDES; RuTube в квизе больше не используется, iframe
+    #video-frame остаётся только как фолбэк при недоступности API.
+    Подписи 2а сделаны нейтральными к устройству («с телефона» убрано —
+    новый ролик не вертикальный); добавлено примечание под плеером про
+    две части блока БКИ. Хотфикс: #video-modal получил z-index:60 —
+    видео, открытое из гайд-модалки, раньше оказывалось под ней
+    (обе overlay с z-index:50, гайд позже в DOM). Маршрутизация, вопросы,
+    тексты результатов и CTA НЕ менялись.)
    (v0.6.17 от 2026-08-26: добавлено видео «Заявление ВБФЛ» (В-1.4) —
     Kinescope ID wJMhJt1nr2DQsLbtPfVPNq, горизонтальное 16:9, ключ
     mfc_application (канон реестра v1.1 §7.1). Точки показа — СТРОГО
@@ -1137,8 +1166,9 @@
 /* ============== КОНФИГУРАЦИЯ v0.4 ============== */
 /* URL Google Apps Script Web App (файл 35). Пусто — режим имитации без отправки. */
 const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzHsCUP0Ye66FZ6UHveBs6TLIGgtziwwHy75n3uQOsRFHEuYBK_J62Rb7wFWoG45XDlPQ/exec';
-/* Ссылки на встраиваемые видео RuTube (формат https://rutube.ru/play/embed/ID/).
-   Пусто — кнопка видео не показывается. */
+/* Ссылки на встраиваемые видео (embed-URL; с v0.6.18 все ролики — Kinescope,
+   формат https://kinescope.io/embed/ID — это фолбэк, основной путь — IFrame API
+   по KINESCOPE_VIDEOS). Пусто — кнопка видео не показывается. */
 /* v0.6: username Telegram-бота без @ (пусто — кнопка Telegram скрыта) */
 const TG_BOT = 'npd_service_bot'; // бот №4 на поллинге (v2.4), включён 2026-07-07 по решению владельца
 
@@ -1147,7 +1177,10 @@ const VIDEO_GUIDES = {
      и переехало с RuTube на Kinescope. Прежний RuTube-embed:
      https://rutube.ru/play/embed/7217263263461e26dda810b566415d45/?p=NGVhFrkj9wJ9e9Def2Z4og */
   fssp:'https://kinescope.io/embed/rEE5zsdJj413N2kGsGYhyT',
-  bki:'https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw',
+  /* v0.6.18: видео 2а «Список бюро / ЦККИ» переехало с RuTube на Kinescope (формат 4:3).
+     Прежний RuTube-embed:
+     https://rutube.ru/play/embed/5d0031082a3b21531ab5355ff2f39090/?p=Ox_7-G-mzjVfO1YzcXP9sw */
+  bki:'https://kinescope.io/embed/tLTqW4mFnZonSrSvq5LvW7',
   /* v0.6.12: видео 2б «Как читать справки из БКИ» — Kinescope, embed-фолбэк */
   bki_report:'https://kinescope.io/embed/wMn8mA7RHF2MVGZeLmQaSg',
   /* v0.6.16: видео 3 «Список кредиторов» (В-1.3) — ключ creditor_list по реестру тегов v1.1 §7.1 */
@@ -1159,19 +1192,23 @@ const VIDEO_GUIDES = {
    started/completed), при недоступности API — обычный embed-iframe выше */
 const KINESCOPE_VIDEOS = {
   fssp:'https://kinescope.io/rEE5zsdJj413N2kGsGYhyT',
+  bki:'https://kinescope.io/tLTqW4mFnZonSrSvq5LvW7',
   bki_report:'https://kinescope.io/wMn8mA7RHF2MVGZeLmQaSg',
   creditor_list:'https://kinescope.io/5UqG2XcpYzVaSiXdUQS78h',
   mfc_application:'https://kinescope.io/wJMhJt1nr2DQsLbtPfVPNq'
 };
 const VIDEO_TITLES = {
   fssp:'Видео: проверка ФССП с телефона',
-  bki:'Видео: как получить БКИ с телефона',
+  bki:'Видео: как узнать список бюро (БКИ) через Госуслуги',
   bki_report:'Видео: как читать справки из БКИ',
   creditor_list:'Видео: как заполнить список кредиторов',
   mfc_application:'Видео: как заполнить заявление для МФЦ'
 };
 /* Горизонтальные ролики (16:9 на всех экранах); остальные — вертикальные */
 const VIDEO_HORIZONTAL = { bki_report:true, creditor_list:true, mfc_application:true };
+/* v0.6.18: ролики формата 4:3 (класс is-4x3, 75% на всех экранах) — видео 2а ЦККИ.
+   Ключ не должен одновременно стоять в VIDEO_HORIZONTAL */
+const VIDEO_4X3 = { bki:true };
 /* v0.6.16: связка гайд → видео (ключи гайдов и видео различаются:
    гайд creditors ↔ видео creditor_list по канону реестра тегов) */
 const GUIDE_VIDEO_KEYS = { fssp:'fssp', bki:'bki', creditors:'creditor_list', mfc:'mfc_application' };
@@ -1182,6 +1219,10 @@ const GUIDE_VIDEO_TITLES = {
   mfc:'Видео-гайд: как заполнить заявление для МФЦ'
 };
 const VIDEO_NOTES = {
+  /* v0.6.18: две части блока про кредитную историю — список бюро и чтение отчётов */
+  bki:'Это первая часть: как через Госуслуги узнать, в каких бюро хранится ваша ' +
+    'кредитная история. Сами отчёты нужно запросить в каждом бюро из списка — ' +
+    'как их читать, показано в видео «Как читать справки из БКИ».',
   bki_report:'В плеере есть главы — по одной на каждое бюро, можно смотреть только те, ' +
     'из которых у вас есть отчёты. В видео разобраны отчёты четырёх крупных бюро; ' +
     'ваш список бюро из ответа Госуслуг может отличаться — проверяйте отчёты ' +
@@ -2735,7 +2776,8 @@ function watchKinescopeIframe(key){
 if($('video-retry')) $('video-retry').addEventListener('click', () => {
   if(currentVideoKey) openVideoModal(currentVideoKey, 'retry');
 });
-/* RuTube/фолбэк: обычный iframe — лоадер убираем по его load */
+/* Фолбэк (обычный embed-iframe при недоступности IFrame API; до v0.6.18 — ещё и RuTube):
+   лоадер убираем по его load */
 if($('video-frame')) $('video-frame').addEventListener('load', () => {
   const src = $('video-frame').getAttribute('src') || '';
   if(src) setTimeout(hideVideoLoading, 250);
@@ -2859,9 +2901,12 @@ function openVideoModal(key, source){
     if(VIDEO_NOTES[key]){ note.textContent = VIDEO_NOTES[key]; note.classList.remove('hidden'); }
     else { note.textContent = ''; note.classList.add('hidden'); }
   }
-  /* формат: горизонтальный скринкаст 16:9 или вертикальный ролик */
+  /* формат: горизонтальный скринкаст 16:9, ролик 4:3 (v0.6.18) или вертикальный */
   const wrap = $('video-wrap');
-  if(wrap) wrap.classList.toggle('is-horizontal', !!VIDEO_HORIZONTAL[key]);
+  if(wrap){
+    wrap.classList.toggle('is-horizontal', !!VIDEO_HORIZONTAL[key]);
+    wrap.classList.toggle('is-4x3', !!VIDEO_4X3[key]);
+  }
   destroyKinescopePlayer();
   showVideoLoading(); /* v0.6.15: мгновенный отклик — до любой сетевой работы */
   if(KINESCOPE_VIDEOS[key]){
