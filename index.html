@@ -252,6 +252,18 @@
   .help-details[open] summary::before{content:'ⓘ '}
   .help-details .help-body{padding:0 14px 12px; font-size:14px; color:var(--text); line-height:1.55}
   .help-details .help-body p{margin:6px 0}
+  /* v0.6.19: блок «Документы для скачивания» — официальные формы для МФЦ.
+     Один рендер (docDownloadsHtml) в трёх местах: ⓘ «Как работает сервис»,
+     гайд «Заявление и подача в МФЦ», под видео «Заявление ВБФЛ» */
+  .doc-downloads{margin-top:12px; padding:12px 14px; border:1px solid var(--border);
+    border-radius:10px; background:#EFEBE7}
+  .doc-downloads p{margin:6px 0; font-size:14px; line-height:1.55}
+  .doc-downloads ul{list-style:none; margin:8px 0 4px; padding:0}
+  .doc-downloads li{margin:0 0 10px; font-size:14px; line-height:1.5}
+  .doc-downloads li:last-child{margin-bottom:0}
+  .doc-downloads a{color:var(--accent-hover); font-weight:600; text-decoration:underline}
+  .doc-downloads .doc-meta{display:block; font-size:12.5px; color:var(--muted); margin-top:2px}
+  .doc-downloads .doc-hint{font-size:12.5px; color:var(--muted); margin-top:8px}
 
   .nav-row{display:flex; justify-content:space-between; align-items:center;
     margin-top:22px; gap:10px; flex-wrap:wrap}
@@ -472,6 +484,8 @@
         вы сами решите сохранить результат или передать документы на проверку, —
         и используются только с вашего согласия, без передачи третьим лицам
         без отдельного согласия.</p>
+        <!-- v0.6.19: официальные формы для скачивания — рендерит docDownloadsHtml('start') -->
+        <div id="doc-downloads-start"></div>
       </div>
     </details>
 
@@ -907,6 +921,8 @@
         </div>
       </div>
       <p class="hint hidden" id="video-modal-note" style="margin-top:10px"></p>
+      <!-- v0.6.19: «Документы для скачивания» — только для видео «Заявление ВБФЛ» -->
+      <div id="video-modal-docs" class="hidden"></div>
       <div class="btn-row" style="margin-top:12px">
         <button class="btn btn-primary" type="button" id="video-upload-cta"
           style="min-height:48px">Готово — загрузить документы на проверку</button>
@@ -1026,7 +1042,23 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.18
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.19
+   (v0.6.19 от 2026-09-01: (1) блок «Документы для скачивания» — три официальные
+    формы Минэкономразвития (заявление о внесудебном банкротстве, приказ № 497;
+    список кредиторов и должников, приказ № 530; заявления о выдаче справок
+    о пенсии/пособии, приказ № 706) лежат в репозитории в папке docs/ и отдаются
+    GitHub Pages. Один рендер docDownloadsHtml(source) в трёх местах: ⓘ «Как
+    работает сервис» на старте (просьба владельца), гайд «Заявление и подача
+    в МФЦ» (Green) и под видео «Заявление ВБФЛ» — озвучка видео ссылается на
+    этот блок (закрыто замечание З-1 к v0.6.17). Текст блока: формы не означают,
+    что подавать нужно; заполнять после ФССП, БКИ и полного списка кредиторов;
+    формы обновляются — сверить редакцию перед подачей. Телеметрия скачиваний —
+    события official_application_form_downloaded / official_creditor_list_form_
+    downloaded / official_certificate_forms_downloaded с extra = источник
+    (реестр тегов §7, решение Д-12). (2) Примечание под видео 2а дополнено:
+    «информация отсутствует» ≠ нет долгов; повторный запрос на сайте ЦБ — только
+    с кодом субъекта кредитной истории (замечания З-1/З-2 к тексту озвучки 2а).
+    Маршрутизация, вопросы, тексты результатов и CTA НЕ менялись.)
    (v0.6.18 от 2026-08-31: видео 2а «Список бюро / ЦККИ» переехало с RuTube
     на Kinescope — ID tLTqW4mFnZonSrSvq5LvW7, формат 4:3 (новый класс
     is-4x3, padding-top 75% на всех экранах; модалка для 4:3 — 700px через
@@ -1219,10 +1251,15 @@ const GUIDE_VIDEO_TITLES = {
   mfc:'Видео-гайд: как заполнить заявление для МФЦ'
 };
 const VIDEO_NOTES = {
-  /* v0.6.18: две части блока про кредитную историю — список бюро и чтение отчётов */
+  /* v0.6.18: две части блока про кредитную историю — список бюро и чтение отчётов.
+     v0.6.19: + оговорка «пусто ≠ нет долгов» и про код субъекта на сайте ЦБ
+     (замечания З-1/З-2 к тексту озвучки 2а, проверено по cbr.ru 2026-08-31) */
   bki:'Это первая часть: как через Госуслуги узнать, в каких бюро хранится ваша ' +
     'кредитная история. Сами отчёты нужно запросить в каждом бюро из списка — ' +
-    'как их читать, показано в видео «Как читать справки из БКИ».',
+    'как их читать, показано в видео «Как читать справки из БКИ». ' +
+    'Ответ «информация отсутствует» не означает, что долгов нет. Повторный запрос ' +
+    'на сайте Банка России принимается только с кодом субъекта кредитной истории; ' +
+    'без кода — через любое бюро или банк, указав данные прежнего паспорта.',
   bki_report:'В плеере есть главы — по одной на каждое бюро, можно смотреть только те, ' +
     'из которых у вас есть отчёты. В видео разобраны отчёты четырёх крупных бюро; ' +
     'ваш список бюро из ответа Госуслуг может отличаться — проверяйте отчёты ' +
@@ -1232,6 +1269,42 @@ const VIDEO_NOTES = {
     'ФССП, получены отчёты БКИ и подготовлен список кредиторов: данные заявления ' +
     'должны совпадать со списком.'
 };
+/* v0.6.19: официальные формы для скачивания — файлы лежат в репозитории (папка docs/),
+   отдаются GitHub Pages. Событие скачивания — по реестру тегов §7 (Д-12):
+   official_application_form_downloaded / official_creditor_list_form_downloaded /
+   official_certificate_forms_downloaded, extra = экран-источник (start / guide / video). */
+const DOC_DOWNLOADS = [
+  { key:'application', event:'official_application_form_downloaded',
+    file:'docs/01_zayavlenie_o_priznanii_bankrotom_vo_vnesudebnom_poryadke.docx',
+    title:'Заявление о признании гражданина банкротом во внесудебном порядке',
+    meta:'DOCX · форма утверждена приказом Минэкономразвития России от 04.08.2020 № 497' },
+  { key:'creditor_list', event:'official_creditor_list_form_downloaded',
+    file:'docs/02_spisok_kreditorov_i_dolzhnikov_grazhdanina.rtf',
+    title:'Список кредиторов и должников гражданина',
+    meta:'RTF · форма утверждена приказом Минэкономразвития России от 05.08.2015 № 530' },
+  { key:'certificates', event:'official_certificate_forms_downloaded',
+    file:'docs/03_zayavleniya_o_vydache_spravok_pensiya_posobie.docx',
+    title:'Заявления о выдаче справок о пенсии и о пособии',
+    meta:'DOCX · формы по приказу Минэкономразвития России от 09.10.2023 № 706 — нужны, ' +
+      'если основание для МФЦ связано с пенсией или ежемесячным пособием на ребёнка' }
+];
+function docDownloadsHtml(source){
+  const items = DOC_DOWNLOADS.map(d =>
+    `<li><a href="${d.file}" download data-doc="${d.key}" data-doc-source="${source}">${d.title}</a>` +
+    `<span class="doc-meta">${d.meta}</span></li>`).join('');
+  return `<div class="doc-downloads" data-doc-block="${source}">
+    <p><strong>Официальные формы для внесудебного банкротства.</strong> Формы утверждены
+    Минэкономразвития России — именно они используются при подаче через МФЦ. Скачать их
+    можно заранее, чтобы увидеть, какие сведения понадобятся. Сами формы не означают,
+    что подавать нужно: подходит ли вам внесудебная процедура — предварительно покажет
+    диагностика, окончательно — проверка документов.</p>
+    <p>Заполнять заявление лучше после того, как проверены ФССП, получены отчёты БКИ
+    и собран полный список кредиторов: данные заявления и списка должны совпадать.</p>
+    <ul>${items}</ul>
+    <p class="doc-hint">Формы периодически обновляются. Перед подачей сверьте редакцию
+    в МФЦ или на официальном сайте Минэкономразвития России.</p>
+  </div>`;
+}
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
 const LS_KEY = 'npd_quiz_state_v04';
@@ -1874,6 +1947,18 @@ $('menu-about').addEventListener('click', () => {
   showScreen('screen-start');
   const ab = $('about-service'); if(ab){ ab.open = true; ab.scrollIntoView({behavior:'smooth'}); }
 });
+/* v0.6.19: «Документы для скачивания» в ⓘ «Как работает сервис» + телеметрия скачиваний
+   (делегирование: блок встречается на старте, в гайде МФЦ и под видео «Заявление ВБФЛ») */
+(function initDocDownloads(){
+  const box = $('doc-downloads-start');
+  if(box) box.innerHTML = docDownloadsHtml('start');
+  document.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest ? e.target.closest('a[data-doc]') : null;
+    if(!a) return;
+    const d = DOC_DOWNLOADS.find(x => x.key === a.dataset.doc);
+    if(d) trackStep(d.event, a.dataset.docSource || '');
+  });
+})();
 ['fssp','bki','bki_report','creditor_list'].forEach(key => {
   const item = $('menu-video-' + key);
   if(item && VIDEO_GUIDES[key]){
@@ -2901,6 +2986,13 @@ function openVideoModal(key, source){
     if(VIDEO_NOTES[key]){ note.textContent = VIDEO_NOTES[key]; note.classList.remove('hidden'); }
     else { note.textContent = ''; note.classList.add('hidden'); }
   }
+  /* v0.6.19: «Документы для скачивания» рядом с видео «Заявление ВБФЛ» — озвучка
+     видео ссылается на этот блок (замечание З-1 к v0.6.17 закрыто) */
+  const docs = $('video-modal-docs');
+  if(docs){
+    if(key === 'mfc_application'){ docs.innerHTML = docDownloadsHtml('video'); docs.classList.remove('hidden'); }
+    else { docs.innerHTML = ''; docs.classList.add('hidden'); }
+  }
   /* формат: горизонтальный скринкаст 16:9, ролик 4:3 (v0.6.18) или вертикальный */
   const wrap = $('video-wrap');
   if(wrap){
@@ -3267,7 +3359,8 @@ function openGuide(key){
   const g = GUIDES[key];
   if(!g) return;
   $('guide-title').textContent = g.title;
-  $('guide-body').innerHTML = g.body;
+  /* v0.6.19: в гайде «Заявление и подача в МФЦ» — блок официальных форм для скачивания */
+  $('guide-body').innerHTML = g.body + (key === 'mfc' ? docDownloadsHtml('guide') : '');
   /* v0.4.1: кнопка видео внутри гайда, если ссылка задана
      (v0.6.16: связка гайд→видео через GUIDE_VIDEO_KEYS, заголовки — словарь) */
   const gv = $('guide-video');
