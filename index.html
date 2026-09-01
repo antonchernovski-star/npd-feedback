@@ -59,6 +59,10 @@
 
   .disclaimer{margin-top:18px; padding:12px 14px; background:#f2ede7;
     border-radius:10px; color:var(--muted); font-size:13px; line-height:1.5;}
+  /* v0.6.20: строка с оператором ПДн и ссылкой на политику под дисклеймером */
+  .disclaimer .legal-links{display:block; margin-top:8px; padding-top:8px;
+    border-top:1px solid #e4ded8; font-size:12.5px}
+  .disclaimer .legal-links a, .consent-row a, .checkbox a{color:var(--accent-hover); text-decoration:underline}
 
   .btn{display:inline-block; border:none; cursor:pointer; padding:12px 18px;
     border-radius:10px; font-size:15px; font-weight:500; transition:background .15s;}
@@ -483,7 +487,9 @@
         телефон и документы в вопросах не запрашиваются. Контакты нужны, только если
         вы сами решите сохранить результат или передать документы на проверку, —
         и используются только с вашего согласия, без передачи третьим лицам
-        без отдельного согласия.</p>
+        без отдельного согласия. Подробно — в
+        <a href="privacy.html" target="_blank" rel="noopener" data-privacy-link="start">политике
+        обработки персональных данных</a>.</p>
         <!-- v0.6.19: официальные формы для скачивания — рендерит docDownloadsHtml('start') -->
         <div id="doc-downloads-start"></div>
       </div>
@@ -504,6 +510,10 @@
     <div class="disclaimer">
       Материал носит информационный характер и не является юридической консультацией.
       Окончательный вывод возможен только после проверки документов.
+      <!-- v0.6.20: ссылка на политику ПДн (152-ФЗ, ст. 18.1) -->
+      <span class="legal-links">Оператор персональных данных — ИП Черновская Н. И.
+      · <a href="privacy.html" target="_blank" rel="noopener" data-privacy-link="footer">Политика обработки
+      персональных данных</a></span>
     </div>
   </section>
 
@@ -744,7 +754,11 @@
 
     <label class="checkbox">
       <input type="checkbox" id="up-consent">
-      <span>Согласен(на) на обработку данных, чтобы специалист проверил документы.</span>
+      <span>Даю <a href="privacy.html#consent" target="_blank" rel="noopener" data-privacy-link="upload-consent">согласие
+      на обработку персональных данных</a> (почта, комментарий, переданные документы,
+      результат диагностики), чтобы специалист проверил документы, и ознакомлен(а) с
+      <a href="privacy.html" target="_blank" rel="noopener" data-privacy-link="upload-policy">политикой
+      обработки персональных данных</a>.</span>
     </label>
 
     <div class="btn-row" id="upload-actions" style="flex-direction:column">
@@ -978,6 +992,9 @@
       <div class="disclaimer" style="margin-top:14px">
         Материал носит информационный характер и не является юридической консультацией.
         Окончательный вывод возможен только после проверки документов.
+        <span class="legal-links">Оператор персональных данных — ИП Черновская Н. И.
+        · <a href="privacy.html" target="_blank" rel="noopener" data-privacy-link="about">Политика обработки
+        персональных данных</a></span>
       </div>
     </div>
   </div>
@@ -1042,7 +1059,19 @@
 
 <script>
 /* ============================================================
-   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.19
+   НАВИГАТОР ПО ДОЛГАМ — кликабельный прототип v0.6.20
+   (v0.6.20 от 2026-09-01: политика обработки персональных данных — отдельная
+    страница privacy.html (ред. 1.0, оператор ИП Черновская Н. И., ИНН
+    540315969140; исходник — файл 37 в 05_ТЗ_и_прототип, служебная записка
+    юристу Ю-8…Ю-16 там же). Ссылки: ⓘ «Как работает сервис» (абзац о защите
+    данных), строка «Оператор ПДн · Политика» под дисклеймером старта и в «О
+    проекте», подписи к обеим галочкам согласия — лид-форма и загрузка
+    документов — теперь ссылаются на текст согласия (privacy.html#consent)
+    и на политику. В заявки добавлено поле policy_version = PRIVACY_VERSION
+    (Apps Script v2.4 его пока не пишет — задача на v2.5). Событие
+    privacy_policy_opened с источником. Тексты согласий перечисляют
+    состав данных и цель. Маршрутизация, вопросы, результаты и CTA
+    НЕ менялись.)
    (v0.6.19 от 2026-09-01: (1) блок «Документы для скачивания» — три официальные
     формы Минэкономразвития (заявление о внесудебном банкротстве, приказ № 497;
     список кредиторов и должников, приказ № 530; заявления о выдаче справок
@@ -1305,6 +1334,9 @@ function docDownloadsHtml(source){
     в МФЦ или на официальном сайте Минэкономразвития России.</p>
   </div>`;
 }
+/* v0.6.20: редакция политики обработки ПДн, действующая на момент согласия —
+   пишется в заявку (policy_version); менять вместе с privacy.html */
+const PRIVACY_VERSION = '1.0';
 const MAX_FILE_MB = 10;
 const ALLOWED_EXT = ['jpg','jpeg','png','pdf'];
 const LS_KEY = 'npd_quiz_state_v04';
@@ -1959,6 +1991,13 @@ $('menu-about').addEventListener('click', () => {
     if(d) trackStep(d.event, a.dataset.docSource || '');
   });
 })();
+/* v0.6.20: политика обработки ПДн (privacy.html, ред. PRIVACY_VERSION) — учёт открытий
+   по источнику (start / footer / about / lead-consent / lead-policy / upload-consent /
+   upload-policy); версия политики уходит в заявку полем policy_version (Ю-13) */
+document.addEventListener('click', (e) => {
+  const a = e.target && e.target.closest ? e.target.closest('a[data-privacy-link]') : null;
+  if(a) trackStep('privacy_policy_opened', a.dataset.privacyLink || '');
+});
 ['fssp','bki','bki_report','creditor_list'].forEach(key => {
   const item = $('menu-video-' + key);
   if(item && VIDEO_GUIDES[key]){
@@ -2354,8 +2393,11 @@ function renderResultContact(result){
     </div>
     <label class="consent-row" style="display:flex; gap:8px; align-items:flex-start; font-size:13px; margin:8px 0">
       <input type="checkbox" id="lead-consent" style="margin-top:3px">
-      <span>Согласен(на) на обработку указанных данных, чтобы получить результат
-      диагностики.</span>
+      <span>Даю <a href="privacy.html#consent" target="_blank" rel="noopener" data-privacy-link="lead-consent">согласие
+      на обработку персональных данных</a> (имя, телефон, почта, результат диагностики),
+      чтобы получить результат, и ознакомлен(а) с
+      <a href="privacy.html" target="_blank" rel="noopener" data-privacy-link="lead-policy">политикой
+      обработки персональных данных</a>.</span>
     </label>
     <div class="btn-row" style="flex-direction:column">
       <a class="btn btn-primary" id="lead-submit-tg" href="#" target="_blank" rel="noopener noreferrer"
@@ -2453,7 +2495,7 @@ function renderResultContact(result){
       phone: phone.replace(/\D/g, ''), email, channel:'phone+email',
       contact: phone.replace(/\D/g, ''), /* v0.6.4: только цифры — '+' ломал ячейку Google Sheets */
       save_link: location.origin + location.pathname + '#s=' + encodeState(),
-      consent: true
+      consent: true, policy_version: PRIVACY_VERSION
     };
   }
 
@@ -3233,7 +3275,7 @@ async function buildUploadPayload(){
   return Object.assign({
     kind:'upload', app_id: uploadAppId, client_ts: new Date().toISOString(),
     email: upEmailInp.value.trim(), contact: upEmailInp.value.trim(),
-    comment: $('up-comment').value.trim(), consent: true,
+    comment: $('up-comment').value.trim(), consent: true, policy_version: PRIVACY_VERSION,
     doc_types: STATE.uploadSelectedTypes, files
   }, collectMeta());
 }
